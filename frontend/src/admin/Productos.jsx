@@ -3,6 +3,7 @@ import api from '../api/client';
 import PanelPagina, { Aviso } from '../components/PanelPagina';
 import Icono from '../components/Icono';
 import { Esqueleto, Vacio } from '../components/Cargando';
+import { achicarImagen, urlDeArchivo } from '../lib/imagenes';
 
 const formInicial = { nombre: '', puntos_requeridos: '', stock: '' };
 
@@ -14,6 +15,7 @@ export default function Productos() {
   const [editando, setEditando] = useState(null);
   const [borrador, setBorrador] = useState(null);
   const [mensaje, setMensaje] = useState(null);
+  const [subiendo, setSubiendo] = useState(null);
 
   const cargar = () =>
     api
@@ -68,6 +70,40 @@ export default function Productos() {
       setMensaje({ texto: 'Guardado.', exito: true });
     } catch (err) {
       setMensaje({ texto: err.response?.data?.error || 'No se pudo guardar', exito: false });
+    }
+  };
+
+  const subirFoto = async (producto, archivo) => {
+    if (!archivo) return;
+    setSubiendo(producto.id);
+    setMensaje(null);
+    try {
+      const chica = await achicarImagen(archivo);
+      const cuerpo = new FormData();
+      cuerpo.append('imagen', chica);
+      await api.post(`/puntos/productos/${producto.id}/imagen`, cuerpo, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      await cargar();
+      setMensaje({ texto: 'Foto actualizada.', exito: true });
+    } catch (err) {
+      setMensaje({
+        texto: err.response?.data?.error || 'No se pudo subir la foto',
+        exito: false,
+      });
+    } finally {
+      setSubiendo(null);
+    }
+  };
+
+  const quitarFoto = async (producto) => {
+    setSubiendo(producto.id);
+    try {
+      await api.delete(`/puntos/productos/${producto.id}/imagen`);
+      await cargar();
+      setMensaje({ texto: 'Foto quitada.', exito: true });
+    } finally {
+      setSubiendo(null);
     }
   };
 
@@ -168,15 +204,43 @@ export default function Productos() {
                             transition-all duration-300 ${p.activo ? '' : 'opacity-55'}`}
               >
                 <div className="flex items-center gap-3">
-                  <span
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border ${
-                      p.activo && p.stock > 0
-                        ? 'border-dorado/40 text-dorado'
-                        : 'border-borde text-crema/30'
-                    }`}
+                  {/* La miniatura es el disparador de la subida: tocarla abre el selector */}
+                  <label
+                    className={`group/foto relative flex h-16 w-16 shrink-0 cursor-pointer items-center
+                                justify-center overflow-hidden rounded-xl border transition-all duration-300 ${
+                                  p.imagen
+                                    ? 'border-dorado/40'
+                                    : 'border-dashed border-dorado/30 hover:border-dorado/60'
+                                } ${subiendo === p.id ? 'opacity-50' : ''}`}
+                    title={p.imagen ? 'Cambiar la foto' : 'Subir una foto'}
                   >
-                    <Icono nombre="regalo" size={18} />
-                  </span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="sr-only"
+                      disabled={subiendo === p.id}
+                      onChange={(e) => {
+                        subirFoto(p, e.target.files?.[0]);
+                        e.target.value = '';
+                      }}
+                    />
+                    {p.imagen ? (
+                      <img
+                        src={urlDeArchivo(p.imagen)}
+                        alt={p.nombre}
+                        className="h-full w-full object-contain p-1"
+                      />
+                    ) : (
+                      <Icono nombre="regalo" size={20} className="text-dorado/45" />
+                    )}
+                    <span
+                      className="absolute inset-0 flex items-center justify-center bg-negro/70 text-[10px]
+                                 font-semibold tracking-wide text-dorado opacity-0 transition-opacity
+                                 duration-200 group-hover/foto:opacity-100"
+                    >
+                      {subiendo === p.id ? '…' : p.imagen ? 'CAMBIAR' : 'SUBIR'}
+                    </span>
+                  </label>
                   <div>
                     <p className="font-medium flex items-center gap-2">
                       {p.nombre}
@@ -194,6 +258,16 @@ export default function Productos() {
                       <span className="text-crema/30">·</span>
                       <span className={p.stock > 0 ? '' : 'text-red-400/80'}>stock: {p.stock}</span>
                     </p>
+                    {p.imagen ? (
+                      <button
+                        onClick={() => quitarFoto(p)}
+                        className="text-crema/35 hover:text-red-400 text-[11px] mt-1 transition-colors duration-200"
+                      >
+                        Quitar foto
+                      </button>
+                    ) : (
+                      <p className="text-crema/30 text-[11px] mt-1">Sin foto · tocá el recuadro</p>
+                    )}
                   </div>
                 </div>
 

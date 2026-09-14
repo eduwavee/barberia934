@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('../db/init');
 const { requireAuth, requireDueño } = require('../middleware/auth');
 const { avisar, avisarATodos, clientesParaAvisar } = require('../lib/notificaciones');
+const { subirImagen, borrarImagen } = require('../lib/subidas');
 
 const router = express.Router();
 
@@ -99,6 +100,50 @@ router.put('/productos/:id', requireAuth, requireDueño, (req, res) => {
     req.params.id
   );
   res.json(db.prepare('SELECT * FROM productos_canje WHERE id = ?').get(req.params.id));
+});
+
+/**
+ * Foto del producto. Reemplaza a la anterior y borra el archivo viejo, para que
+ * la carpeta no se llene de imágenes que ya nadie muestra.
+ */
+router.post(
+  '/productos/:id/imagen',
+  requireAuth,
+  requireDueño,
+  (req, res, next) => {
+    subirImagen.single('imagen')(req, res, (err) => {
+      if (!err) return next();
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({ error: 'La imagen no puede pesar más de 3 MB' });
+      }
+      return res.status(400).json({ error: err.message || 'No se pudo subir la imagen' });
+    });
+  },
+  (req, res) => {
+    const producto = db.prepare('SELECT * FROM productos_canje WHERE id = ?').get(req.params.id);
+    if (!producto) {
+      borrarImagen(req.file?.filename);
+      return res.status(404).json({ error: 'Producto no encontrado' });
+    }
+    if (!req.file) return res.status(400).json({ error: 'No llegó ninguna imagen' });
+
+    const anterior = producto.imagen;
+    const ruta = `/uploads/${req.file.filename}`;
+    db.prepare('UPDATE productos_canje SET imagen = ? WHERE id = ?').run(ruta, producto.id);
+    borrarImagen(anterior);
+
+    res.status(201).json(db.prepare('SELECT * FROM productos_canje WHERE id = ?').get(producto.id));
+  },
+);
+
+router.delete('/productos/:id/imagen', requireAuth, requireDueño, (req, res) => {
+  const producto = db.prepare('SELECT * FROM productos_canje WHERE id = ?').get(req.params.id);
+  if (!producto) return res.status(404).json({ error: 'Producto no encontrado' });
+
+  db.prepare('UPDATE productos_canje SET imagen = NULL WHERE id = ?').run(producto.id);
+  borrarImagen(producto.imagen);
+
+  res.json(db.prepare('SELECT * FROM productos_canje WHERE id = ?').get(producto.id));
 });
 
 module.exports = router;

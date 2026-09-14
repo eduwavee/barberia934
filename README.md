@@ -46,6 +46,8 @@ Usuario dueño de prueba creado por el seed:
   crea en el momento (dueño)
 - `GET /api/servicios?todos=1` y `GET /api/puntos/productos?todos=1` — incluyen
   los dados de baja, para poder reactivarlos (dueño)
+- `POST /api/puntos/productos/:id/imagen` (multipart) y
+  `DELETE /api/puntos/productos/:id/imagen` — foto del producto canjeable (dueño)
 - `GET /api/agenda/horarios` / `PUT /api/agenda/horarios/:dia` — horarios de
   atención de cada día de la semana (dueño)
 - `GET|POST /api/agenda/bloqueos` / `DELETE /api/agenda/bloqueos/:id` — cerrar un
@@ -218,8 +220,29 @@ filete), así no hay tres variantes del mismo header.
 - **Servicios y Canjes**: se editan (precio incluido) y se pueden **volver a
   activar**. Antes desactivar era irreversible desde la app: el listado sólo
   traía los activos, así que lo dado de baja desaparecía para siempre.
+- **Foto de cada producto canjeable**: se sube tocando la miniatura en
+  `/admin/productos`. Ver abajo.
 - **Clientes**: buscador y ficha por cliente con sus turnos, sus canjes, cuánto
   gastó y cuándo vino por última vez.
+
+## Fotos de los productos canjeables
+El dueño sube la foto tocando la miniatura en `/admin/productos`. La imagen
+reemplaza a la anterior y el archivo viejo se borra solo, así la carpeta no se
+llena de fotos que ya nadie muestra.
+
+- Se aceptan **JPG, PNG y WebP**, hasta 3 MB.
+- **La foto se achica en el navegador antes de subirla** (700 px de lado mayor):
+  una foto de celular pesa varios MB y se muestra en una tarjeta de 120 px.
+  Achicarla antes ahorra datos, tiempo de subida y espacio en el servidor.
+- El nombre del archivo lo genera el servidor; nunca se usa el que manda el
+  cliente, porque puede traer rutas o extensiones engañosas.
+- Los archivos viven en `backend/uploads/` (ignorado por git) y se sirven como
+  estáticos en `/uploads`, cacheados por el navegador.
+- En "Mis puntos" el cliente ve la foto subida. Si todavía no hay ninguna, cae
+  en las fotos de respaldo emparejadas por nombre ("cera", "polvo", "aceite").
+
+**Al deployar**: la carpeta `uploads/` necesita un volumen persistente, igual que
+la base SQLite. Sin eso, las fotos se pierden en cada despliegue.
 
 ## Cuenta del cliente
 En `/perfil` el cliente edita su nombre, carga o corrige su **teléfono** y cambia
@@ -288,7 +311,8 @@ datos reales.
 - La recuperación de contraseña depende de que el dueño mande el enlace por
   WhatsApp. Con un proveedor de mails pasa a ser automática.
 - Backup de la base: hoy es un SQLite sin copia. En Railway/Render hace falta un
-  volumen persistente, o migrar a Postgres.
+  volumen persistente —que también necesita `backend/uploads/`— o migrar a
+  Postgres y un almacenamiento de archivos aparte.
 - Subir imágenes de productos canjeables desde el panel (hoy las fotos salen
   de los assets y se emparejan por nombre).
 - Deploy sugerido: backend en Railway/Render (con volumen persistente para
