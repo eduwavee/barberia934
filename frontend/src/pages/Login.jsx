@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Icono from '../components/Icono';
 import { Spinner } from '../components/Cargando';
@@ -13,9 +13,17 @@ export default function Login({ vistaInicial = 'portada' }) {
   const navigate = useNavigate();
 
   // 'portada' | 'ingresar' | 'registrar'
-  const [vista, setVista] = useState(vistaInicial);
+  const [vista, setVista] = useState(() =>
+    new URLSearchParams(window.location.search).get('sesion') === 'vencida'
+      ? 'ingresar'
+      : vistaInicial,
+  );
   const [form, setForm] = useState({ nombre: '', email: '', telefono: '', password: '' });
-  const [error, setError] = useState('');
+  const [error, setError] = useState(() =>
+    new URLSearchParams(window.location.search).get('sesion') === 'vencida'
+      ? 'Tu sesión venció, volvé a entrar.'
+      : '',
+  );
   const [cargando, setCargando] = useState(false);
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -176,6 +184,15 @@ export default function Login({ vistaInicial = 'portada' }) {
               >
                 {vista === 'ingresar' ? 'No tengo cuenta, registrarme' : 'Ya tengo cuenta, ingresar'}
               </button>
+
+              {vista === 'ingresar' && (
+                <Link
+                  to="/recuperar"
+                  className="text-crema/50 text-[13px] text-center hover:text-dorado transition-colors duration-200"
+                >
+                  Olvidé mi contraseña
+                </Link>
+              )}
             </div>
           </form>
         )}

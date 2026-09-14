@@ -11,6 +11,7 @@ const items = [
   { to: '/admin/servicios', label: 'Servicios', icono: 'tijera' },
   { to: '/admin/productos', label: 'Canjes', icono: 'regalo' },
   { to: '/admin/clientes', label: 'Clientes', icono: 'clientes' },
+  { to: '/admin/recuperaciones', label: 'Claves', icono: 'candado' },
 ];
 
 export default function AdminNav() {
