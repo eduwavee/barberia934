@@ -11,9 +11,17 @@ export default function MedallonPuntos({ puntos = 0 }) {
         <defs>
           <path id="arco-superior" d="M100,100 m-72,0 a72,72 0 0,1 144,0" fill="none" />
           <path id="arco-inferior" d="M100,100 m-82,0 a82,82 0 0,0 164,0" fill="none" />
-          <radialGradient id="disco" cx="50%" cy="38%" r="72%">
-            <stop offset="0%" stopColor="#242019" />
-            <stop offset="100%" stopColor="#0C0B09" />
+          {/*
+            En coordenadas reales (no en % del contenedor) para poder ubicar el
+            marrón claro justo en el anillo visible: el disco interior tapa todo
+            lo que está por dentro del 62% del radio, así que un degradado que
+            aclare el centro no se vería.
+          */}
+          <radialGradient id="disco" gradientUnits="userSpaceOnUse" cx="100" cy="100" r="99">
+            <stop offset="0%" stopColor="#1B1610" />
+            <stop offset="55%" stopColor="#2E241A" />
+            <stop offset="78%" stopColor="#5C462E" />
+            <stop offset="100%" stopColor="#0E0C09" />
           </radialGradient>
         </defs>
 
@@ -27,12 +35,12 @@ export default function MedallonPuntos({ puntos = 0 }) {
         <circle cx="100" cy="100" r="61" fill="#0A0A0A" stroke="#C9AE8C" strokeWidth="1.4" opacity="0.9" />
 
         {/* Texto del sello, en el anillo entre los dos círculos */}
-        <text fill="#C9AE8C" fontSize="15" fontFamily="'Playfair Display', serif" letterSpacing="4.5" opacity="0.72">
+        <text fill="#C9AE8C" fontSize="15" fontFamily="'Playfair Display', serif" letterSpacing="4.5" opacity="0.92">
           <textPath href="#arco-superior" startOffset="50%" textAnchor="middle">
             BARBERÍA
           </textPath>
         </text>
-        <text fill="#C9AE8C" fontSize="13" fontFamily="'Playfair Display', serif" letterSpacing="4" opacity="0.6">
+        <text fill="#C9AE8C" fontSize="13" fontFamily="'Playfair Display', serif" letterSpacing="4" opacity="0.85">
           <textPath href="#arco-inferior" startOffset="50%" textAnchor="middle">
             JACOB RUIZ
           </textPath>
