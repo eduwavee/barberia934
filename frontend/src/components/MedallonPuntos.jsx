@@ -9,8 +9,8 @@ export default function MedallonPuntos({ puntos = 0 }) {
     <div className="relative mx-auto w-[224px] h-[224px] animate-aparecer-escala">
       <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full" aria-hidden="true">
         <defs>
-          <path id="arco-superior" d="M100,100 m-76,0 a76,76 0 0,1 152,0" fill="none" />
-          <path id="arco-inferior" d="M100,100 m-70,0 a70,70 0 0,0 140,0" fill="none" />
+          <path id="arco-superior" d="M100,100 m-72,0 a72,72 0 0,1 144,0" fill="none" />
+          <path id="arco-inferior" d="M100,100 m-82,0 a82,82 0 0,0 164,0" fill="none" />
           <radialGradient id="disco" cx="50%" cy="38%" r="72%">
             <stop offset="0%" stopColor="#242019" />
             <stop offset="100%" stopColor="#0C0B09" />
@@ -20,20 +20,24 @@ export default function MedallonPuntos({ puntos = 0 }) {
         <circle cx="100" cy="100" r="99" fill="url(#disco)" />
         <circle cx="100" cy="100" r="93" fill="none" stroke="#C9AE8C" strokeWidth="0.9" opacity="0.5" />
 
-        {/* Texto del sello: muy tenue, como relieve */}
-        <text fill="#C9AE8C" fontSize="17" fontFamily="'Playfair Display', serif" letterSpacing="5" opacity="0.28">
+        {/*
+          El disco interior va antes que el texto: pintado después le tapaba las
+          letras de abajo, y "JACOB RUIZ" se veía cortado.
+        */}
+        <circle cx="100" cy="100" r="61" fill="#0A0A0A" stroke="#C9AE8C" strokeWidth="1.4" opacity="0.9" />
+
+        {/* Texto del sello, en el anillo entre los dos círculos */}
+        <text fill="#C9AE8C" fontSize="15" fontFamily="'Playfair Display', serif" letterSpacing="4.5" opacity="0.72">
           <textPath href="#arco-superior" startOffset="50%" textAnchor="middle">
             BARBERÍA
           </textPath>
         </text>
-        <text fill="#C9AE8C" fontSize="15" fontFamily="'Playfair Display', serif" letterSpacing="4.5" opacity="0.2">
+        <text fill="#C9AE8C" fontSize="13" fontFamily="'Playfair Display', serif" letterSpacing="4" opacity="0.6">
           <textPath href="#arco-inferior" startOffset="50%" textAnchor="middle">
             JACOB RUIZ
           </textPath>
         </text>
 
-        {/* Anillo interior, el que encierra el saldo */}
-        <circle cx="100" cy="100" r="62" fill="#0A0A0A" stroke="#C9AE8C" strokeWidth="1.4" opacity="0.9" />
         <circle cx="26" cy="100" r="2" fill="#C9AE8C" opacity="0.5" />
         <circle cx="174" cy="100" r="2" fill="#C9AE8C" opacity="0.5" />
       </svg>
