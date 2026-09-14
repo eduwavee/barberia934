@@ -5,6 +5,8 @@ import Icono from './Icono';
 const items = [
   { to: '/admin', label: 'Panel', icono: 'panel', end: true },
   { to: '/admin/turnos', label: 'Turnos', icono: 'calendario' },
+  { to: '/admin/agenda', label: 'Agenda', icono: 'reloj' },
+  { to: '/admin/recordatorios', label: 'Recordar', icono: 'whatsapp' },
   { to: '/admin/ingresos', label: 'Ingresos', icono: 'ingresos' },
   { to: '/admin/servicios', label: 'Servicios', icono: 'tijera' },
   { to: '/admin/productos', label: 'Canjes', icono: 'regalo' },

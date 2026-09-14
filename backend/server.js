@@ -14,6 +14,8 @@ app.use('/api/turnos', require('./routes/turnos'));
 app.use('/api/puntos', require('./routes/puntos'));
 app.use('/api/ingresos', require('./routes/ingresos'));
 app.use('/api/usuarios', require('./routes/usuarios'));
+app.use('/api/notificaciones', require('./routes/notificaciones'));
+app.use('/api/agenda', require('./routes/agenda'));
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { NotificacionesProvider } from './context/NotificacionesContext';
 import RutaProtegida from './components/RutaProtegida';
 
 import Login from './pages/Login';
@@ -9,6 +10,7 @@ import MisTurnos from './pages/MisTurnos';
 import MisPuntos from './pages/MisPuntos';
 import Pagos from './pages/Pagos';
 import Ubicacion from './pages/Ubicacion';
+import Notificaciones from './pages/Notificaciones';
 
 import Dashboard from './admin/Dashboard';
 import Ingresos from './admin/Ingresos';
@@ -16,6 +18,8 @@ import TurnosAdmin from './admin/TurnosAdmin';
 import Servicios from './admin/Servicios';
 import Productos from './admin/Productos';
 import Clientes from './admin/Clientes';
+import Agenda from './admin/Agenda';
+import Recordatorios from './admin/Recordatorios';
 
 function InicioSegunRol() {
   const { usuario, cargando } = useAuth();
@@ -29,6 +33,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <NotificacionesProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Login vistaInicial="registrar" />} />
@@ -40,6 +45,7 @@ export default function App() {
           <Route path="/puntos" element={<RutaProtegida><MisPuntos /></RutaProtegida>} />
           <Route path="/pagos" element={<RutaProtegida><Pagos /></RutaProtegida>} />
           <Route path="/ubicacion" element={<RutaProtegida><Ubicacion /></RutaProtegida>} />
+          <Route path="/notificaciones" element={<RutaProtegida><Notificaciones /></RutaProtegida>} />
 
           {/* Dueño */}
           <Route path="/admin" element={<RutaProtegida soloDueño><Dashboard /></RutaProtegida>} />
@@ -48,9 +54,12 @@ export default function App() {
           <Route path="/admin/servicios" element={<RutaProtegida soloDueño><Servicios /></RutaProtegida>} />
           <Route path="/admin/productos" element={<RutaProtegida soloDueño><Productos /></RutaProtegida>} />
           <Route path="/admin/clientes" element={<RutaProtegida soloDueño><Clientes /></RutaProtegida>} />
+          <Route path="/admin/agenda" element={<RutaProtegida soloDueño><Agenda /></RutaProtegida>} />
+          <Route path="/admin/recordatorios" element={<RutaProtegida soloDueño><Recordatorios /></RutaProtegida>} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </NotificacionesProvider>
       </AuthProvider>
     </BrowserRouter>
   );

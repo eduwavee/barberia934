@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { useNotificaciones } from '../context/NotificacionesContext';
 import BottomNav from '../components/BottomNav';
 import Pantalla from '../components/Pantalla';
 import Icono from '../components/Icono';
@@ -19,6 +20,7 @@ const accesos = [
 
 export default function Home() {
   const { usuario } = useAuth();
+  const { sinLeer } = useNotificaciones();
   const [proximoTurno, setProximoTurno] = useState(null);
   const [cargando, setCargando] = useState(true);
   const refAccesos = useRevelar();
@@ -58,13 +60,18 @@ export default function Home() {
           className="w-[74px] h-[74px] rounded-full object-cover animate-sello"
         />
         <Link
-          to="/turnos/mios"
-          aria-label="Mis turnos"
+          to="/notificaciones"
+          aria-label={sinLeer ? `Notificaciones, ${sinLeer} sin leer` : 'Notificaciones'}
           className="relative p-2 -m-2 text-crema hover:text-dorado transition-colors duration-200 active:scale-90"
         >
           <Icono nombre="campana" size={22} />
-          {proximoTurno && (
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-dorado animate-latido" />
+          {sinLeer > 0 && (
+            <span
+              className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center
+                         rounded-full bg-dorado px-1 text-[10px] font-bold text-negro animate-rebote"
+            >
+              {sinLeer > 9 ? '9+' : sinLeer}
+            </span>
           )}
         </Link>
       </header>
