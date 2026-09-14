@@ -64,15 +64,33 @@ colores están muestreados de ahí y las imágenes recortadas de la hoja de asse
 - **Paleta** (`tailwind.config.js`): `negro #0A0A0A`, `panel #141414`,
   `borde #262626`, `dorado #C9AE8C` (arena: botones, chips activos, acentos),
   `crema #EDE7DC` (texto) y `papel #DFD8C6` (tarjetas claras).
-- **Imágenes recortadas de la hoja**: `barberia-local.jpg` (fondo del login y
-  foto de ambiente en Pagos), `banner-maquina.jpg` (banner del inicio),
-  `mapa.jpg` (Ubicación, con el pin teñido al dorado de la marca),
-  `pago-mercadopago.png` y `pago-naranjax.png` (logos oficiales), `qr.png`, y
-  `producto-cera.png` / `producto-polvo.png` / `producto-aceite.png` (catálogo
-  canjeable, con el fondo blanco ya removido).
+- **Imágenes**: salen de la hoja `src/assets/image.png` y las genera
+  `frontend/scripts/preparar-assets.py`. Como los recortes de la hoja son chicos
+  (la hoja entera mide 1024 px de ancho), se agrandan con super-resolución
+  **EDSR x4** vía OpenCV en vez de un reescalado común — sobre fotos deja bastante
+  menos ruido y bordes más limpios que LANCZOS. Para volver a generarlas:
+
+  ```bash
+  cd frontend
+  python -m pip install pillow opencv-contrib-python qrcode
+  mkdir -p scripts/modelos && curl -sSL -o scripts/modelos/EDSR_x4.pb     https://raw.githubusercontent.com/Saafke/EDSR_Tensorflow/master/models/EDSR_x4.pb
+  python scripts/preparar-assets.py
+  ```
+
+  El modelo (38 MB) está en `.gitignore`: se baja una sola vez y no viaja en el repo.
+
+  Salen: `barberia-local.jpg` (fondo del login y foto de ambiente en Pagos),
+  `banner-maquina.jpg` (banner del inicio), `mapa.jpg` (Ubicación, con el pin
+  teñido al dorado de la marca), `pago-mercadopago.png` y `pago-naranjax.png`,
+  `qr.png` y `producto-cera.png` / `producto-polvo.png` / `producto-aceite.png`
+  (con el fondo blanco ya removido).
   Los productos se emparejan con su foto por el nombre que cargues en
   `/admin/productos` (busca "cera", "polvo" o "aceite"); si no coincide, cae en
   un icono.
+- **Código QR**: el de la hoja era decorativo (no codificaba nada). El de la app
+  se genera de verdad y apunta a la constante `URL_APP` de
+  `scripts/preparar-assets.py` — cambiala por la URL de la app publicada y volvé
+  a correr el script.
 - **Iconos**: `src/components/Icono.jsx` — set propio de SVG de trazo fino que
   heredan el color con `currentColor`, siguiendo la hoja de iconos de la
   referencia. Uso: `<Icono nombre="tijera" size={20} />`. Props: `size`,
