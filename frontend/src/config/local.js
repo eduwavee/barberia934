@@ -9,22 +9,23 @@
 export const LOCAL = {
   nombre: 'Barbería 9 ¾',
 
-  // Dirección tal como se muestra en la app
-  calle: 'Av. San Martín 1234',
-  ciudad: 'Río Cuarto, Córdoba',
+  // Dirección tal como se muestra en la app.
+  // OJO: es la ubicación temporal (SUM 60 Viviendas). Cuando se mude el local,
+  // se cambian estas cuatro líneas y listo.
+  calle: 'Barrio 60 Viviendas',
+  ciudad: 'Famaillá, Tucumán',
 
   // Coordenadas del local (centro del mapa y destino del enlace a Maps)
-  lat: -33.1232,
-  lng: -64.3493,
+  lat: -27.0525412,
+  lng: -65.4126394,
 
   // Contacto. El teléfono va en formato internacional sin espacios ni signos.
-  whatsapp: '5493585555555',
-  instagram: 'barberia9.3.4',
+  whatsapp: '543812006246',
+  instagram: 'barberia_9_3_4',
 
-  horarios: [
-    { dias: 'Martes a viernes', horas: '15:00 — 23:00' },
-    { dias: 'Sábados', horas: '10:00 — 20:00' },
-  ],
+  // Coinciden con los horarios que carga el seed del backend
+  // (martes a sábado, turnos cada hora de 15 a 23).
+  horarios: [{ dias: 'Martes a sábados', horas: '15:00 — 23:00' }],
 };
 
 /** Enlace a Google Maps, por coordenadas para que caiga en el punto exacto. */
