@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-negro text-crema font-sans antialiased;
+  }
+
+  ::selection {
+    @apply bg-dorado text-negro;
+  }
+}
+
+@layer components {
+  /* Botón arena macizo: el primario de toda la app */
+  .btn-dorado {
+    @apply relative overflow-hidden bg-dorado text-negro font-semibold tracking-wide py-3.5 px-4
+           rounded-lg text-center transition-all duration-200 active:scale-[0.97]
+           hover:bg-dorado-claro disabled:hover:bg-dorado disabled:active:scale-100;
+  }
+  .btn-dorado::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.5) 50%, transparent 65%);
+    transform: translateX(-120%);
+    transition: transform 0.7s ease;
+  }
+  .btn-dorado:hover::after {
+    transform: translateX(120%);
+  }
+
+  .btn-outline {
+    @apply border border-dorado/70 text-crema font-semibold tracking-wide py-3.5 px-4 rounded-lg
+           text-center transition-all duration-200 active:scale-[0.97]
+           hover:bg-dorado/10 hover:border-dorado;
+  }
+
+  /* Tarjeta oscura estándar */
+  .card {
+    @apply bg-panel border border-borde rounded-2xl p-4 transition-all duration-300;
+  }
+
+  /* Tarjeta clara (próximos turnos, medios de pago) */
+  .card-papel {
+    @apply bg-papel text-negro rounded-2xl p-5 shadow-tarjeta transition-all duration-300;
+  }
+
+  .input-dorado {
+    @apply w-full bg-white/[0.06] border border-white/15 rounded-lg px-4 py-3.5 text-crema
+           placeholder-crema/45 transition-all duration-200 focus:outline-none
+           focus:border-dorado focus:bg-white/10;
+  }
+
+  /* Filete del sello: separador decorativo */
+  .filete {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-dorado/50 to-transparent;
+  }
+
+  /* Rótulo en versalitas, como los títulos de sección de la referencia */
+  .rotulo {
+    @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-crema/70;
+  }
+
+  .esqueleto {
+    @apply rounded-lg bg-borde/60;
+    background-image: linear-gradient(110deg, transparent 35%, rgba(201, 174, 140, 0.12) 50%, transparent 65%);
+    background-size: 200% 100%;
+    animation: brillo 1.6s linear infinite;
+  }
+
+  /* Poste de barbero: franjas diagonales que enmarcan la tarjeta del QR */
+  .poste-barbero {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      #C9AE8C 0 6px,
+      #0A0A0A 6px 12px
+    );
+  }
+}
+
+@layer utilities {
+  /* Entrada escalonada de los hijos directos de una lista o grilla */
+  .cascada > * {
+    animation: aparecer 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .cascada > *:nth-child(1) { animation-delay: 0.03s; }
+  .cascada > *:nth-child(2) { animation-delay: 0.06s; }
+  .cascada > *:nth-child(3) { animation-delay: 0.09s; }
+  .cascada > *:nth-child(4) { animation-delay: 0.12s; }
+  .cascada > *:nth-child(5) { animation-delay: 0.15s; }
+  .cascada > *:nth-child(6) { animation-delay: 0.18s; }
+  .cascada > *:nth-child(7) { animation-delay: 0.21s; }
+  .cascada > *:nth-child(8) { animation-delay: 0.24s; }
+  .cascada > *:nth-child(n + 9) { animation-delay: 0.27s; }
+
+  .presionable {
+    @apply transition-transform duration-150 active:scale-[0.96];
+  }
+
+  /* Carrusel horizontal sin barra de scroll a la vista */
+  .carrusel {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .carrusel::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Accesibilidad: si el sistema pide menos movimiento, se apaga todo */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
