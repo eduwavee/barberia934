@@ -75,7 +75,13 @@ export default function Home() {
       {/* Banner promocional */}
       <div className="px-5 mt-4">
         <div className="relative h-28 rounded-xl overflow-hidden border border-borde animate-aparecer-escala">
-          <img src={banner} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
+          <img
+            src={banner}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ objectPosition: '55% 46%' }}
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-negro via-negro/85 to-transparent" />
           <div className="relative h-full flex flex-col justify-center pl-6">
             <p className="font-display text-[19px] leading-snug tracking-wide">TU ESTILO</p>
