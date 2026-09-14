@@ -96,6 +96,44 @@ def sin_fondo_blanco(im, umbral=232):
     return im.crop(caja) if caja else im
 
 
+def sin_fondo_por_inundacion(im, umbral=228):
+    """
+    Vuelve transparente sólo el fondo blanco *conectado al borde*. A diferencia
+    de sin_fondo_blanco, respeta los blancos internos del dibujo (por ejemplo
+    las manos del logo de Mercado Pago).
+    """
+    im = im.convert("RGBA")
+    w, h = im.size
+    px = im.load()
+
+    def es_claro(p):
+        return p[0] > umbral and p[1] > umbral and p[2] > umbral
+
+    fondo = bytearray(w * h)
+    pila = [(x, y) for x in range(w) for y in (0, h - 1)]
+    pila += [(x, y) for y in range(h) for x in (0, w - 1)]
+    while pila:
+        x, y = pila.pop()
+        i = y * w + x
+        if fondo[i] or not es_claro(px[x, y]):
+            continue
+        fondo[i] = 1
+        if x > 0:
+            pila.append((x - 1, y))
+        if x < w - 1:
+            pila.append((x + 1, y))
+        if y > 0:
+            pila.append((x, y - 1))
+        if y < h - 1:
+            pila.append((x, y + 1))
+
+    mascara = Image.frombytes("L", (w, h), bytes(255 if not b else 0 for b in fondo))
+    mascara = mascara.filter(ImageFilter.GaussianBlur(0.8))
+    im.putalpha(mascara)
+    caja = im.split()[3].getbbox()
+    return im.crop(caja) if caja else im
+
+
 def tenir_claros(im, umbral=150):
     """El mapa trae un pin blanco grabado: lo pasa al dorado de la marca."""
     px = im.load()
@@ -131,11 +169,13 @@ guardar(ajustar(tenir_claros(mapa), 1200), "mapa.jpg")
 print("Logos de pago")
 # Acá NO se usa recortar_blancos: son letras oscuras sobre blanco y el recorte
 # automático se come las columnas del borde que tienen poca tinta.
+# El fondo se saca por inundación desde el borde, así los blancos internos
+# (las manos de Mercado Pago) quedan intactos.
 for nombre, caja in {
     "pago-mercadopago.png": (16, 274, 243, 347),
     "pago-naranjax.png": (16, 352, 243, 411),
 }.items():
-    guardar(ajustar(superescalar(hoja.crop(caja)), 520), nombre)
+    guardar(ajustar(sin_fondo_por_inundacion(superescalar(hoja.crop(caja))), 520), nombre)
 
 print("Productos canjeables")
 # Primero se agranda con la foto entera y recién después se saca el fondo:

@@ -7,7 +7,7 @@ export default {
         // Muestreados de la referencia de diseño (src/assets/referencia.jpg)
         negro: '#0A0A0A',
         panel: '#141414',
-        borde: '#262626',
+        borde: '#2E2A24', // hairline cálido, como en la referencia
         dorado: {
           DEFAULT: '#C9AE8C', // arena: botones, chips activos, acentos
           claro: '#E2D3BC',
@@ -72,6 +72,35 @@ export default {
           '25%': { transform: 'translateX(-5px)' },
           '75%': { transform: 'translateX(5px)' },
         },
+        marcar: {
+          '0%': { strokeDashoffset: '48' },
+          '100%': { strokeDashoffset: '0' },
+        },
+        rebote: {
+          '0%, 100%': { transform: 'translateY(0) scale(1)' },
+          '40%': { transform: 'translateY(-4px) scale(1.14)' },
+          '70%': { transform: 'translateY(0) scale(0.96)' },
+        },
+        revelar: {
+          '0%': { opacity: '0', transform: 'translateY(22px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        entrarPantalla: {
+          '0%': { opacity: '0', transform: 'translateY(10px) scale(0.995)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+        subirPanel: {
+          '0%': { opacity: '0', transform: 'translateY(28px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        onda: {
+          '0%': { opacity: '0.35', transform: 'scale(0)' },
+          '100%': { opacity: '0', transform: 'scale(2.6)' },
+        },
+        derivaLenta: {
+          '0%': { transform: 'scale(1.06) translate3d(0, 0, 0)' },
+          '100%': { transform: 'scale(1.14) translate3d(-1.5%, -1.5%, 0)' },
+        },
         acercarFoto: {
           '0%': { transform: 'scale(1.12)' },
           '100%': { transform: 'scale(1)' },
@@ -89,6 +118,13 @@ export default {
         girar: 'girar 0.8s linear infinite',
         tijeretazo: 'tijeretazo 0.6s ease-in-out',
         temblor: 'temblor 0.35s ease-in-out',
+        marcar: 'marcar 0.5s ease-out both',
+        rebote: 'rebote 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        revelar: 'revelar 0.6s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'entrar-pantalla': 'entrarPantalla 0.32s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'subir-panel': 'subirPanel 0.45s cubic-bezier(0.22, 1, 0.36, 1) both',
+        onda: 'onda 0.6s ease-out forwards',
+        deriva: 'derivaLenta 18s ease-in-out infinite alternate',
         'acercar-foto': 'acercarFoto 8s ease-out both',
       },
     },
