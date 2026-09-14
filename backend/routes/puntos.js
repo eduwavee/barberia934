@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../db/init');
 const { requireAuth, requireDueño } = require('../middleware/auth');
+const { avisar, avisarATodos, clientesParaAvisar } = require('../lib/notificaciones');
 
 const router = express.Router();
 
@@ -52,6 +53,19 @@ router.post('/productos', requireAuth, requireDueño, (req, res) => {
   const info = db
     .prepare('INSERT INTO productos_canje (nombre, puntos_requeridos, stock) VALUES (?, ?, ?)')
     .run(nombre, puntos_requeridos, stock || 0);
+
+  // Se avisa a quienes ya tienen puntos suficientes para llevárselo
+  const alcanzan = db
+    .prepare("SELECT id FROM usuarios WHERE rol = 'cliente' AND puntos >= ?")
+    .all(puntos_requeridos)
+    .map((u) => u.id);
+  avisarATodos(alcanzan, {
+    tipo: 'producto_nuevo',
+    titulo: `Nuevo para canjear: ${nombre}`,
+    cuerpo: `Cuesta ${puntos_requeridos} puntos y ya te alcanza.`,
+    enlace: '/puntos',
+  });
+
   res.status(201).json(db.prepare('SELECT * FROM productos_canje WHERE id = ?').get(info.lastInsertRowid));
 });
 

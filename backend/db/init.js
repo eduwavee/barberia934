@@ -46,8 +46,40 @@ CREATE TABLE IF NOT EXISTS turnos (
   estado TEXT NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente','confirmado','cancelado','completado')),
   metodo_pago TEXT,
   puntos_otorgados INTEGER,
-  fecha_creacion TEXT NOT NULL DEFAULT (datetime('now')),
-  UNIQUE(fecha, hora)
+  fecha_creacion TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+/*
+ * Días y horarios que el dueño cierra a mano: feriados, vacaciones o un turno
+ * suelto que quiere reservarse. Con hora en NULL se bloquea el día entero.
+ */
+CREATE TABLE IF NOT EXISTS bloqueos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  fecha TEXT NOT NULL,
+  hora TEXT,
+  motivo TEXT,
+  fecha_creacion TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS notificaciones (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  tipo TEXT NOT NULL,
+  titulo TEXT NOT NULL,
+  cuerpo TEXT,
+  enlace TEXT,
+  leida INTEGER NOT NULL DEFAULT 0,
+  fecha TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+/* Suscripciones del navegador para las notificaciones push (Web Push). */
+CREATE TABLE IF NOT EXISTS suscripciones_push (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  endpoint TEXT NOT NULL UNIQUE,
+  p256dh TEXT NOT NULL,
+  auth TEXT NOT NULL,
+  fecha TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS productos_canje (
@@ -86,6 +118,70 @@ CREATE TABLE IF NOT EXISTS movimientos_caja (
   turno_id INTEGER REFERENCES turnos(id),
   fecha TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+CREATE INDEX IF NOT EXISTS idx_turnos_fecha ON turnos(fecha);
+CREATE INDEX IF NOT EXISTS idx_bloqueos_fecha ON bloqueos(fecha);
+CREATE INDEX IF NOT EXISTS idx_notif_usuario ON notificaciones(usuario_id, leida, id DESC);
 `);
+
+/*
+ * Un horario sólo puede estar tomado por un turno activo. Va como índice
+ * parcial y no como UNIQUE de tabla: si contara los cancelados, al cancelar un
+ * turno ese horario quedaba inutilizable para siempre — se mostraba libre y al
+ * reservarlo reventaba.
+ */
+db.exec(`
+CREATE UNIQUE INDEX IF NOT EXISTS idx_turnos_horario_ocupado
+  ON turnos(fecha, hora) WHERE estado IN ('pendiente','confirmado');
+`);
+
+/**
+ * Bases creadas antes del índice parcial arrastran el UNIQUE(fecha, hora) de
+ * tabla. SQLite no permite borrar una restricción, así que se reconstruye la
+ * tabla conservando los datos.
+ */
+function migrarUniqueDeTurnos() {
+  const definicion = db
+    .prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'turnos'")
+    .get();
+  if (!definicion || !/UNIQUE\s*\(\s*fecha\s*,\s*hora\s*\)/i.test(definicion.sql)) return;
+
+  console.log('Migrando turnos: se quita UNIQUE(fecha, hora) de la tabla…');
+  db.pragma('foreign_keys = OFF');
+  db.transaction(() => {
+    db.exec(`
+      CREATE TABLE turnos_migracion (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
+        servicio_id INTEGER NOT NULL REFERENCES servicios(id),
+        fecha TEXT NOT NULL,
+        hora TEXT NOT NULL,
+        estado TEXT NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente','confirmado','cancelado','completado')),
+        metodo_pago TEXT,
+        puntos_otorgados INTEGER,
+        fecha_creacion TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      INSERT INTO turnos_migracion
+        (id, usuario_id, servicio_id, fecha, hora, estado, metodo_pago, puntos_otorgados, fecha_creacion)
+      SELECT id, usuario_id, servicio_id, fecha, hora, estado, metodo_pago, puntos_otorgados, fecha_creacion
+      FROM turnos;
+
+      DROP TABLE turnos;
+      ALTER TABLE turnos_migracion RENAME TO turnos;
+
+      CREATE INDEX IF NOT EXISTS idx_turnos_fecha ON turnos(fecha);
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_turnos_horario_ocupado
+        ON turnos(fecha, hora) WHERE estado IN ('pendiente','confirmado');
+    `);
+  })();
+  db.pragma('foreign_keys = ON');
+
+  const problemas = db.pragma('foreign_key_check');
+  if (problemas.length) console.warn('Revisar claves foráneas tras la migración:', problemas);
+  console.log('Migración de turnos lista.');
+}
+
+migrarUniqueDeTurnos();
 
 module.exports = db;

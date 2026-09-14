@@ -39,6 +39,16 @@ Usuario dueño de prueba creado por el seed:
 - `GET /api/ingresos/serie?dias=14` — serie diaria para gráficos (dueño)
 - `POST /api/ingresos` — cargar gasto o ingreso extra manual (dueño)
 - `GET /api/usuarios` — listado de clientes con sus puntos (dueño)
+- `GET /api/agenda/horarios` / `PUT /api/agenda/horarios/:dia` — horarios de
+  atención de cada día de la semana (dueño)
+- `GET|POST /api/agenda/bloqueos` / `DELETE /api/agenda/bloqueos/:id` — cerrar un
+  día entero o un horario suelto; al cerrar se cancelan los turnos de ahí y se
+  avisa a cada cliente (dueño)
+- `GET /api/turnos/recordatorios?dias=1` — turnos del día siguiente con el
+  mensaje de WhatsApp ya armado (dueño)
+- `GET /api/notificaciones` / `PUT /api/notificaciones/:id/leida` /
+  `PUT /api/notificaciones/leer-todas` — avisos del cliente
+- `POST /api/notificaciones/suscribir` — alta del navegador en las push
 
 Toda ruta de "dueño" requiere el JWT de un usuario con `rol = 'dueño'`.
 
@@ -51,9 +61,11 @@ npm install
 npm run dev                 # http://localhost:5173
 ```
 
-- Rutas de cliente: `/`, `/turnos`, `/turnos/mios`, `/puntos`, `/pagos`, `/ubicacion`
+- Rutas de cliente: `/`, `/turnos`, `/turnos/mios`, `/puntos`, `/pagos`, `/ubicacion`,
+  `/notificaciones`
 - Rutas de dueño (protegidas por rol): `/admin`, `/admin/turnos`, `/admin/ingresos`,
-  `/admin/servicios`, `/admin/productos`, `/admin/clientes`
+  `/admin/servicios`, `/admin/productos`, `/admin/clientes`, `/admin/agenda`,
+  `/admin/recordatorios`
 - Al loguearse, el sistema redirige automáticamente según el rol del usuario.
 
 ### Sistema visual
@@ -136,6 +148,50 @@ se despliega sobre la misma pantalla (`/registro` abre directo el de registro).
 Para volver a recortar los assets desde la hoja hay que tener Pillow
 (`python -m pip install pillow`); los recortes están documentados arriba.
 
+## Agenda del dueño
+Desde `/admin/agenda` se maneja la atención sin tocar código:
+
+- **Horarios por día**: abrir o cerrar cada día de la semana, cambiar la hora de
+  apertura y cierre, y cada cuánto sale un turno.
+- **Bloqueos**: cerrar un día entero (feriado, vacaciones) o un horario suelto.
+  Si ya había turnos reservados ahí, se cancelan y le llega el aviso a cada
+  cliente. Al reabrir, se avisa a los clientes que no tienen turno.
+
+## Notificaciones
+Cada aviso se guarda siempre en la base —así aparece en la campanita del inicio
+aunque el cliente nunca haya dado permiso— y además se intenta mandar como
+notificación del sistema a los navegadores suscriptos.
+
+Se disparan solos: turno reservado, turno confirmado, turno cancelado, horario
+liberado, puntos sumados, puntos que ya alcanzan para canjear, y producto nuevo
+en el catálogo.
+
+Para las push hacen falta las claves VAPID en `backend/.env`:
+
+```bash
+cd backend
+node -e "console.log(require('web-push').generateVAPIDKeys())"
+# pegar el par en VAPID_PUBLIC_KEY y VAPID_PRIVATE_KEY
+```
+
+Sin esas claves la app funciona igual: los avisos quedan sólo dentro de la app.
+
+## Recordatorios por WhatsApp
+`/admin/recordatorios` lista los turnos de mañana (o de hoy, o de pasado) con el
+teléfono de cada cliente y un botón que abre el chat con el mensaje ya escrito.
+No usa la API paga de WhatsApp: abre `wa.me` y el dueño sólo aprieta enviar.
+
+## App instalable (PWA)
+La app se puede agregar a la pantalla de inicio del teléfono y abre sin la barra
+del navegador. El service worker (`frontend/public/sw.js`) cachea el envoltorio
+para que abra con mala conexión y recibe las notificaciones push.
+
+**No se cachean las llamadas a la API**: los turnos y los puntos tienen que verse
+siempre al día, servir una versión vieja sería peor que mostrar un error.
+
+En desarrollo el service worker no se registra, porque el caché estorba al hot
+reload; se activa recién en el build de producción.
+
 ## Cómo suma y canjea puntos un cliente
 1. El cliente reserva un turno (queda en estado `pendiente`).
 2. Vos (dueño) lo pasás a `confirmado` y, cuando lo atendés, a `completado`.
@@ -147,6 +203,11 @@ Para volver a recortar los assets desde la hoja hay que tener Pillow
 ## Pendiente para producción
 - Los pagos (Mercado Pago / Naranja X) hoy son solo selección de método al
   reservar — falta integrar los checkouts reales de cada plataforma.
+- Los recordatorios de WhatsApp son manuales (el dueño aprieta enviar). Para que
+  salgan solos hace falta la API de WhatsApp Business, que es paga.
+- Seguridad: el CORS está abierto a cualquier origen y el login no tiene límite
+  de intentos; tampoco hay recuperación de contraseña.
+- No hay tests. Los flujos de plata y puntos son los que más los necesitan.
 - Subir imágenes de productos canjeables desde el panel (hoy las fotos salen
   de los assets y se emparejan por nombre).
 - Deploy sugerido: backend en Railway/Render (con volumen persistente para
