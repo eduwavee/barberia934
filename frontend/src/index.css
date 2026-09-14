@@ -57,10 +57,15 @@
   }
 
   /* Botón arena dentro de una tarjeta clara */
+  /*
+   * El text-center va acá y no en quien lo usa: el botón ocupa todo el ancho, y
+   * si depende de la alineación heredada queda alineado a la izquierda en
+   * cualquier tarjeta que no sea text-center.
+   */
   .btn-en-papel {
-    @apply block w-full rounded-full bg-dorado py-3.5 text-sm font-bold tracking-[0.08em]
-           text-negro transition-all duration-200 hover:bg-dorado-oscuro hover:text-crema
-           active:scale-[0.97];
+    @apply block w-full rounded-full bg-dorado py-3.5 text-center text-sm font-bold
+           tracking-[0.08em] text-negro transition-all duration-200
+           hover:bg-dorado-oscuro hover:text-crema active:scale-[0.97];
   }
 
   .input-dorado {
