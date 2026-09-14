@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import BottomNav from '../components/BottomNav';
 import Encabezado from '../components/Encabezado';
@@ -142,9 +143,19 @@ export default function Ubicacion() {
         </p>
 
         {usuario && (
+          <Link
+            to="/perfil"
+            className="group btn-outline w-full mt-7 inline-flex items-center justify-center gap-2"
+          >
+            <Icono nombre="clientes" size={17} />
+            MI CUENTA
+          </Link>
+        )}
+
+        {usuario && (
           <button
             onClick={logout}
-            className="group btn-outline w-full mt-7 inline-flex items-center justify-center gap-2"
+            className="group btn-outline w-full mt-3 inline-flex items-center justify-center gap-2"
           >
             <Icono
               nombre="salir"

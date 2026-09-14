@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../api/client';
-import AdminNav from '../components/AdminNav';
+import PanelPagina from '../components/PanelPagina';
 import Icono from '../components/Icono';
 import { Esqueleto } from '../components/Cargando';
 
@@ -87,14 +87,7 @@ export default function Agenda() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto pb-16">
-      <AdminNav />
-      <div className="px-5 pt-6">
-        <h1 className="font-display text-[22px] mb-1 flex items-center gap-2 animate-aparecer">
-          <Icono nombre="reloj" size={22} className="text-dorado" />
-          Agenda
-        </h1>
-        <div className="filete mb-5" />
+    <PanelPagina icono="reloj" titulo="Agenda" descripcion="Tus horarios de atención y los días que cerrás.">
 
         {mensaje && (
           <p
@@ -230,7 +223,6 @@ export default function Agenda() {
             ))}
           </div>
         )}
-      </div>
-    </div>
+    </PanelPagina>
   );
 }

@@ -12,6 +12,7 @@ import Pagos from './pages/Pagos';
 import Ubicacion from './pages/Ubicacion';
 import Notificaciones from './pages/Notificaciones';
 import Recuperar from './pages/Recuperar';
+import Perfil from './pages/Perfil';
 
 import Dashboard from './admin/Dashboard';
 import Ingresos from './admin/Ingresos';
@@ -50,6 +51,7 @@ export default function App() {
           <Route path="/pagos" element={<RutaProtegida><Pagos /></RutaProtegida>} />
           <Route path="/ubicacion" element={<RutaProtegida><Ubicacion /></RutaProtegida>} />
           <Route path="/notificaciones" element={<RutaProtegida><Notificaciones /></RutaProtegida>} />
+          <Route path="/perfil" element={<RutaProtegida><Perfil /></RutaProtegida>} />
 
           {/* Dueño */}
           <Route path="/admin" element={<RutaProtegida soloDueño><Dashboard /></RutaProtegida>} />

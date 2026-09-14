@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import api from '../api/client';
-import AdminNav from '../components/AdminNav';
+import PanelPagina from '../components/PanelPagina';
 import Icono from '../components/Icono';
 import Contador from '../components/Contador';
 import { Esqueleto, Vacio } from '../components/Cargando';
+import GraficoIngresos from '../components/GraficoIngresos';
 
 const formatoPesos = (n) => `$${n.toLocaleString('es-AR')}`;
 
@@ -59,14 +60,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="max-w-3xl mx-auto pb-16">
-      <AdminNav />
-      <div className="px-5 pt-6">
-        <h1 className="font-display text-[22px] mb-1 flex items-center gap-2 animate-aparecer">
-          <Icono nombre="panel" size={22} className="text-dorado" />
-          Panel del dueño
-        </h1>
-        <div className="filete mb-5" />
+    <PanelPagina icono="panel" titulo="Panel del dueño" descripcion="Cómo viene el día, la semana y el mes.">
 
         <div className="grid sm:grid-cols-3 gap-3 mb-7 cascada">
           <Tarjeta
@@ -76,6 +70,10 @@ export default function Dashboard() {
           />
           <Tarjeta titulo="Esta semana" resumen={resumen?.semana} icono="calendario" />
           <Tarjeta titulo="Este mes" resumen={resumen?.mes} icono="ingresos" />
+        </div>
+
+        <div className="mb-7">
+          <GraficoIngresos />
         </div>
 
         <h2 className="font-semibold mb-3 flex items-center gap-2">
@@ -107,7 +105,6 @@ export default function Dashboard() {
             ))}
           </div>
         )}
-      </div>
-    </div>
+    </PanelPagina>
   );
 }

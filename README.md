@@ -39,7 +39,13 @@ Usuario dueño de prueba creado por el seed:
 - `GET /api/ingresos/resumen` — totales hoy/semana/mes (dueño)
 - `GET /api/ingresos/serie?dias=14` — serie diaria para gráficos (dueño)
 - `POST /api/ingresos` — cargar gasto o ingreso extra manual (dueño)
-- `GET /api/usuarios` — listado de clientes con sus puntos (dueño)
+- `GET /api/usuarios` — listado de clientes con puntos, cortes y última visita (dueño)
+- `GET /api/usuarios/:id` — ficha de un cliente: turnos, canjes y cuánto gastó (dueño)
+- `PUT /api/usuarios/perfil` — el cliente edita su nombre y su teléfono
+- `POST /api/turnos/manual` — turno de mostrador; acepta cliente existente o lo
+  crea en el momento (dueño)
+- `GET /api/servicios?todos=1` y `GET /api/puntos/productos?todos=1` — incluyen
+  los dados de baja, para poder reactivarlos (dueño)
 - `GET /api/agenda/horarios` / `PUT /api/agenda/horarios/:dia` — horarios de
   atención de cada día de la semana (dueño)
 - `GET|POST /api/agenda/bloqueos` / `DELETE /api/agenda/bloqueos/:id` — cerrar un
@@ -67,7 +73,7 @@ npm run dev                 # http://localhost:5173
 ```
 
 - Rutas de cliente: `/`, `/turnos`, `/turnos/mios`, `/puntos`, `/pagos`, `/ubicacion`,
-  `/notificaciones`
+  `/notificaciones`, `/perfil`
 - Rutas de dueño (protegidas por rol): `/admin`, `/admin/turnos`, `/admin/ingresos`,
   `/admin/servicios`, `/admin/productos`, `/admin/clientes`, `/admin/agenda`,
   `/admin/recordatorios`
@@ -196,6 +202,31 @@ siempre al día, servir una versión vieja sería peor que mostrar un error.
 
 En desarrollo el service worker no se registra, porque el caché estorba al hot
 reload; se activa recién en el build de producción.
+
+## Panel del dueño
+Todas las pantallas comparten el encabezado de `PanelPagina` (nav, título y
+filete), así no hay tres variantes del mismo header.
+
+- **Panel**: totales de hoy, semana y mes, más el **gráfico de ingresos por
+  día** (7, 14 o 30 días). Es una sola serie a propósito: las tarjetas de arriba
+  ya muestran ingresos, gastos y neto, y los gastos de una barbería son
+  esporádicos — una segunda serie en cero casi todos los días es ruido. Los
+  gastos aparecen en el globo al pasar por encima y en la tabla de números.
+- **Turnos**: filtro por fecha y por estado, y alta de **turno de mostrador**
+  para el que llamó o cayó sin turno. Se puede elegir un cliente existente o
+  crearlo ahí mismo; nace confirmado y suma puntos igual que uno de la app.
+- **Servicios y Canjes**: se editan (precio incluido) y se pueden **volver a
+  activar**. Antes desactivar era irreversible desde la app: el listado sólo
+  traía los activos, así que lo dado de baja desaparecía para siempre.
+- **Clientes**: buscador y ficha por cliente con sus turnos, sus canjes, cuánto
+  gastó y cuándo vino por última vez.
+
+## Cuenta del cliente
+En `/perfil` el cliente edita su nombre, carga o corrige su **teléfono** y cambia
+su contraseña. El teléfono importa: sin él no se le puede mandar el recordatorio
+de WhatsApp, y antes no había forma de agregarlo después de registrarse.
+
+En "Mis puntos" ahora se ve tanto lo que sumó como lo que canjeó.
 
 ## Seguridad
 - **CORS acotado**: sólo se aceptan los orígenes de `ORIGENES_PERMITIDOS` (lista
