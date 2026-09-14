@@ -41,6 +41,21 @@ app.use(
 
 app.use(express.json({ limit: '100kb' }));
 
+/*
+ * Fotos de los productos canjeables. Van como estáticos y no por la API: son
+ * públicas (las ve cualquier cliente en "Mis puntos") y así las cachea el
+ * navegador. El nombre del archivo lo genera el servidor, nunca el que sube.
+ */
+app.use(
+  '/uploads',
+  express.static(require('path').join(__dirname, 'uploads'), {
+    maxAge: '30d',
+    immutable: true,
+    index: false,
+    dotfiles: 'deny',
+  }),
+);
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/servicios', require('./routes/servicios'));
 app.use('/api/turnos', require('./routes/turnos'));

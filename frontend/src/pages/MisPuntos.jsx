@@ -5,22 +5,27 @@ import Encabezado from '../components/Encabezado';
 import Icono from '../components/Icono';
 import MedallonPuntos from '../components/MedallonPuntos';
 import { Vacio } from '../components/Cargando';
+import { urlDeArchivo } from '../lib/imagenes';
 import Pantalla from '../components/Pantalla';
 import useRevelar from '../hooks/useRevelar';
 import imgCera from '../assets/producto-cera.png';
 import imgPolvo from '../assets/producto-polvo.png';
 import imgAceite from '../assets/producto-aceite.png';
 
-/** Foto del catálogo según el nombre del producto cargado por el dueño. */
-const fotos = [
+/*
+ * Fotos de respaldo, emparejadas por el nombre. Sólo se usan si el dueño todavía
+ * no subió una foto propia desde el panel.
+ */
+const fotosPorNombre = [
   { clave: 'cera', src: imgCera },
   { clave: 'polvo', src: imgPolvo },
   { clave: 'aceite', src: imgAceite },
 ];
 
-function fotoDe(nombre = '') {
-  const n = nombre.toLowerCase();
-  return fotos.find((f) => n.includes(f.clave))?.src ?? null;
+function fotoDe(producto) {
+  if (producto.imagen) return urlDeArchivo(producto.imagen);
+  const n = (producto.nombre || '').toLowerCase();
+  return fotosPorNombre.find((f) => n.includes(f.clave))?.src ?? null;
 }
 
 export default function MisPuntos() {
@@ -98,7 +103,7 @@ export default function MisPuntos() {
             <div ref={refProductos} className="revelable grid grid-cols-3 gap-2.5">
               {visibles.map((p) => {
                 const alcanza = puntos >= p.puntos_requeridos && p.stock > 0;
-                const foto = fotoDe(p.nombre);
+                const foto = fotoDe(p);
                 return (
                   <div
                     key={p.id}
