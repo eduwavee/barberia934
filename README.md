@@ -18,6 +18,7 @@ cp .env.example .env      # completá JWT_SECRET con algo random en producción
 npm install
 npm run seed               # crea servicios, horarios, productos y el usuario dueño
 npm run dev                 # http://localhost:4000
+npm test                    # tests de los flujos de plata y puntos
 ```
 
 Usuario dueño de prueba creado por el seed:
@@ -49,6 +50,10 @@ Usuario dueño de prueba creado por el seed:
 - `GET /api/notificaciones` / `PUT /api/notificaciones/:id/leida` /
   `PUT /api/notificaciones/leer-todas` — avisos del cliente
 - `POST /api/notificaciones/suscribir` — alta del navegador en las push
+- `PUT /api/auth/password` — cambiar la contraseña estando logueado
+- `POST /api/auth/recuperar` — pedir recuperación; `GET /api/auth/recuperaciones` y
+  `POST /api/auth/recuperaciones/:id/enlace` (dueño) para generar el enlace;
+  `POST /api/auth/recuperar/:token` para definir la contraseña nueva
 
 Toda ruta de "dueño" requiere el JWT de un usuario con `rol = 'dueño'`.
 
@@ -192,6 +197,50 @@ siempre al día, servir una versión vieja sería peor que mostrar un error.
 En desarrollo el service worker no se registra, porque el caché estorba al hot
 reload; se activa recién en el build de producción.
 
+## Seguridad
+- **CORS acotado**: sólo se aceptan los orígenes de `ORIGENES_PERMITIDOS` (lista
+  separada por comas) más el Vite local. Un origen distinto recibe 403. La API
+  viaja con el token del cliente: abierta a todos, cualquier sitio podría usarla
+  en su nombre.
+- **Límite de intentos**: 10 logins fallidos cada 10 minutos por IP (los
+  exitosos no gastan cupo), 5 registros por hora y 5 pedidos de recuperación por
+  hora. Detrás de un proxy hace falta `trust proxy`, que ya está puesto: si no,
+  el límite vería a todos los clientes como uno solo.
+- **Cabeceras** de `helmet`, y el cuerpo de las peticiones limitado a 100 kB.
+- **Sesión vencida**: el token dura 30 días y el frontend ahora intercepta el
+  401 — cierra la sesión y manda al login con un aviso. Antes las pantallas
+  fallaban en silencio.
+- **Mensajes que no filtran**: el login responde igual con email inexistente que
+  con contraseña incorrecta, y el pedido de recuperación siempre contesta lo
+  mismo exista o no la cuenta.
+
+### Recuperación de contraseña
+Todavía no hay servidor de mails, así que el enlace lo manda el dueño por
+WhatsApp desde `/admin/recuperaciones`:
+
+1. El cliente pide recuperar desde `/recuperar`.
+2. El pedido aparece en el panel del dueño.
+3. El dueño genera el enlace y se lo manda por WhatsApp.
+4. El cliente define su contraseña desde `/recuperar/:token`.
+
+El token se guarda **hasheado**, sirve una sola vez y vence en una hora. Para
+pasar a mails, alcanza con enviar el enlace desde `POST /api/auth/recuperar`.
+
+## Tests
+```bash
+cd backend
+npm test
+```
+
+Cubren los flujos donde un error cuesta plata: que un horario no se reserve dos
+veces, que un horario cancelado se pueda volver a tomar, que completar un turno
+acredite los puntos y el ingreso **una sola vez**, que el canje descuente puntos
+y stock (y que un canje rechazado no toque el stock), que la caja cuadre, y que
+un cliente no pueda ver ni tocar lo del dueño.
+
+Cada corrida usa una base nueva en un archivo temporal, así nunca tocan los
+datos reales.
+
 ## Cómo suma y canjea puntos un cliente
 1. El cliente reserva un turno (queda en estado `pendiente`).
 2. Vos (dueño) lo pasás a `confirmado` y, cuando lo atendés, a `completado`.
@@ -205,9 +254,10 @@ reload; se activa recién en el build de producción.
   reservar — falta integrar los checkouts reales de cada plataforma.
 - Los recordatorios de WhatsApp son manuales (el dueño aprieta enviar). Para que
   salgan solos hace falta la API de WhatsApp Business, que es paga.
-- Seguridad: el CORS está abierto a cualquier origen y el login no tiene límite
-  de intentos; tampoco hay recuperación de contraseña.
-- No hay tests. Los flujos de plata y puntos son los que más los necesitan.
+- La recuperación de contraseña depende de que el dueño mande el enlace por
+  WhatsApp. Con un proveedor de mails pasa a ser automática.
+- Backup de la base: hoy es un SQLite sin copia. En Railway/Render hace falta un
+  volumen persistente, o migrar a Postgres.
 - Subir imágenes de productos canjeables desde el panel (hoy las fotos salen
   de los assets y se emparejan por nombre).
 - Deploy sugerido: backend en Railway/Render (con volumen persistente para

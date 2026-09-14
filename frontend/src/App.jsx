@@ -11,6 +11,7 @@ import MisPuntos from './pages/MisPuntos';
 import Pagos from './pages/Pagos';
 import Ubicacion from './pages/Ubicacion';
 import Notificaciones from './pages/Notificaciones';
+import Recuperar from './pages/Recuperar';
 
 import Dashboard from './admin/Dashboard';
 import Ingresos from './admin/Ingresos';
@@ -20,6 +21,7 @@ import Productos from './admin/Productos';
 import Clientes from './admin/Clientes';
 import Agenda from './admin/Agenda';
 import Recordatorios from './admin/Recordatorios';
+import Recuperaciones from './admin/Recuperaciones';
 
 function InicioSegunRol() {
   const { usuario, cargando } = useAuth();
@@ -37,6 +39,8 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Login vistaInicial="registrar" />} />
+          <Route path="/recuperar" element={<Recuperar />} />
+          <Route path="/recuperar/:token" element={<Recuperar />} />
 
           {/* Cliente */}
           <Route path="/" element={<RutaProtegida><InicioSegunRol /></RutaProtegida>} />
@@ -56,6 +60,7 @@ export default function App() {
           <Route path="/admin/clientes" element={<RutaProtegida soloDueño><Clientes /></RutaProtegida>} />
           <Route path="/admin/agenda" element={<RutaProtegida soloDueño><Agenda /></RutaProtegida>} />
           <Route path="/admin/recordatorios" element={<RutaProtegida soloDueño><Recordatorios /></RutaProtegida>} />
+          <Route path="/admin/recuperaciones" element={<RutaProtegida soloDueño><Recuperaciones /></RutaProtegida>} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

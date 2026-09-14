@@ -82,6 +82,19 @@ CREATE TABLE IF NOT EXISTS suscripciones_push (
   fecha TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+/*
+ * Pedidos de recuperación de contraseña. Se guarda el hash del token, nunca el
+ * token en sí: si se filtrara la base, no alcanzaría para entrar a una cuenta.
+ */
+CREATE TABLE IF NOT EXISTS recuperaciones (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  token_hash TEXT NOT NULL,
+  vence_en TEXT NOT NULL,
+  usado INTEGER NOT NULL DEFAULT 0,
+  fecha TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS productos_canje (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   nombre TEXT NOT NULL,
@@ -122,6 +135,7 @@ CREATE TABLE IF NOT EXISTS movimientos_caja (
 CREATE INDEX IF NOT EXISTS idx_turnos_fecha ON turnos(fecha);
 CREATE INDEX IF NOT EXISTS idx_bloqueos_fecha ON bloqueos(fecha);
 CREATE INDEX IF NOT EXISTS idx_notif_usuario ON notificaciones(usuario_id, leida, id DESC);
+CREATE INDEX IF NOT EXISTS idx_recuperaciones_hash ON recuperaciones(token_hash);
 `);
 
 /*
