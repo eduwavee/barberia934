@@ -116,6 +116,20 @@ colores están muestreados de ahí y las imágenes recortadas de la hoja de asse
   tiene respaldo por scroll y un temporizador, para que el contenido nunca pueda
   quedar invisible.
 
+### Datos del local
+Dirección, coordenadas, WhatsApp, Instagram y horarios viven en un solo lugar:
+`frontend/src/config/local.js`. La pantalla de Ubicación, el mapa y los enlaces
+de contacto salen todos de ahí.
+
+Para sacar las coordenadas exactas: abrí Google Maps, clic derecho sobre la
+puerta del local → "¿Qué hay aquí?" y copiá los dos números de abajo.
+
+El mapa es un Leaflet real con tiles de OpenStreetMap (libres, sin API key),
+oscurecidos por CSS para que combinen con el diseño. Se carga bajo demanda
+—sólo al abrir Ubicación— así no suma peso al arranque de la app. El zoom con
+la rueda está apagado a propósito para no robarle el scroll a la página en el
+celular.
+
 El login es una portada con la foto del local y los dos accesos: el formulario
 se despliega sobre la misma pantalla (`/registro` abre directo el de registro).
 
