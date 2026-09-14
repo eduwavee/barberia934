@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../api/client';
-import AdminNav from '../components/AdminNav';
+import PanelPagina from '../components/PanelPagina';
 import Icono from '../components/Icono';
 import { Esqueleto, Vacio } from '../components/Cargando';
 
@@ -40,14 +40,7 @@ export default function Recuperaciones() {
   const copiar = (texto) => navigator.clipboard?.writeText(texto);
 
   return (
-    <div className="max-w-3xl mx-auto pb-16">
-      <AdminNav />
-      <div className="px-5 pt-6">
-        <h1 className="font-display text-[22px] mb-1 flex items-center gap-2 animate-aparecer">
-          <Icono nombre="candado" size={22} className="text-dorado" />
-          Recuperar contraseñas
-        </h1>
-        <div className="filete mb-5" />
+    <PanelPagina icono="candado" titulo="Recuperar contraseñas">
 
         <p className="text-crema/60 text-[14px] mb-5">
           Clientes que pidieron recuperar su contraseña. Generás el enlace y se lo pasás por
@@ -128,7 +121,6 @@ export default function Recuperaciones() {
             })}
           </div>
         )}
-      </div>
-    </div>
+    </PanelPagina>
   );
 }

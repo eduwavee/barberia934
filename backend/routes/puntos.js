@@ -15,11 +15,29 @@ router.get('/mis-puntos', requireAuth, (req, res) => {
        ORDER BY t.fecha DESC LIMIT 20`
     )
     .all(req.usuario.id);
-  res.json({ puntos: usuario.puntos, historial });
+  // Lo que canjeó: antes sólo se veía lo que sumaba, no lo que gastaba
+  const canjes = db
+    .prepare(
+      `SELECT c.fecha, c.puntos_usados, p.nombre AS producto
+       FROM canjes c JOIN productos_canje p ON p.id = c.producto_id
+       WHERE c.usuario_id = ? ORDER BY c.id DESC LIMIT 20`,
+    )
+    .all(req.usuario.id);
+
+  res.json({ puntos: usuario.puntos, historial, canjes });
 });
 
+/* ?todos=1 incluye los dados de baja, para que el dueño pueda reactivarlos. */
 router.get('/productos', (req, res) => {
-  res.json(db.prepare('SELECT * FROM productos_canje WHERE activo = 1 ORDER BY puntos_requeridos').all());
+  const todos = req.query.todos === '1';
+  res.json(
+    db
+      .prepare(
+        `SELECT * FROM productos_canje ${todos ? '' : 'WHERE activo = 1'}
+         ORDER BY activo DESC, puntos_requeridos`,
+      )
+      .all(),
+  );
 });
 
 router.post('/canjear', requireAuth, (req, res) => {

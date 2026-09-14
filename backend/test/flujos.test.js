@@ -200,6 +200,80 @@ test('el resumen de caja descuenta los gastos', async () => {
   assert.ok(datos.mes.gastos >= 1000);
 });
 
+// ----------------------------------------------------- mostrador y perfil ----
+
+test('el dueño carga un turno de mostrador para un cliente nuevo', async () => {
+  const fecha = enDias(9);
+  const alta = await pedir('POST', '/turnos/manual', {
+    token: dueño,
+    cuerpo: { nombre: 'Pasó Sin Turno', telefono: '3815550000', servicio_id: 1, fecha, hora: '15:00' },
+  });
+
+  assert.equal(alta.estado, 201);
+  assert.equal(alta.datos.estado, 'confirmado', 'el turno de mostrador nace confirmado');
+
+  // Y ese cliente existe de verdad, así puede sumar puntos
+  const creado = db.prepare('SELECT * FROM usuarios WHERE id = ?').get(alta.datos.usuario_id);
+  assert.equal(creado.nombre, 'Pasó Sin Turno');
+  assert.equal(creado.rol, 'cliente');
+
+  await pedir('PUT', `/turnos/${alta.datos.id}/estado`, {
+    token: dueño,
+    cuerpo: { estado: 'completado' },
+  });
+  assert.equal(
+    db.prepare('SELECT puntos FROM usuarios WHERE id = ?').get(creado.id).puntos,
+    100,
+    'el cliente de mostrador también suma puntos',
+  );
+});
+
+test('un turno de mostrador tampoco puede pisar un horario tomado', async () => {
+  const fecha = enDias(10);
+  await pedir('POST', '/turnos', {
+    token: cliente.token,
+    cuerpo: { servicio_id: 1, fecha, hora: '16:00' },
+  });
+
+  const choque = await pedir('POST', '/turnos/manual', {
+    token: dueño,
+    cuerpo: { nombre: 'Otro Más', servicio_id: 1, fecha, hora: '16:00' },
+  });
+  assert.equal(choque.estado, 409);
+});
+
+test('el cliente puede cargar su teléfono', async () => {
+  const sinTelefono = await crearCliente('sintel@test.com');
+  db.prepare('UPDATE usuarios SET telefono = NULL WHERE id = ?').run(sinTelefono.id);
+
+  const guardado = await pedir('PUT', '/usuarios/perfil', {
+    token: sinTelefono.token,
+    cuerpo: { telefono: '3811112222' },
+  });
+  assert.equal(guardado.estado, 200);
+  assert.equal(guardado.datos.telefono, '3811112222');
+
+  const corto = await pedir('PUT', '/usuarios/perfil', {
+    token: sinTelefono.token,
+    cuerpo: { telefono: '123' },
+  });
+  assert.equal(corto.estado, 400, 'un teléfono muy corto no se guarda');
+});
+
+test('un servicio dado de baja se puede volver a activar', async () => {
+  await pedir('PUT', '/servicios/2', { token: dueño, cuerpo: { activo: 0 } });
+
+  const visibles = await pedir('GET', '/servicios');
+  assert.ok(!visibles.datos.some((s) => s.id === 2), 'el cliente no lo ve');
+
+  const todos = await pedir('GET', '/servicios?todos=1', { token: dueño });
+  assert.ok(todos.datos.some((s) => s.id === 2), 'el dueño sí lo ve, para reactivarlo');
+
+  await pedir('PUT', '/servicios/2', { token: dueño, cuerpo: { activo: 1 } });
+  const otraVez = await pedir('GET', '/servicios');
+  assert.ok(otraVez.datos.some((s) => s.id === 2), 'vuelve al catálogo del cliente');
+});
+
 // -------------------------------------------------------------- permisos ----
 
 test('un cliente no puede tocar lo del dueño', async () => {

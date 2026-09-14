@@ -214,6 +214,58 @@ router.delete('/:id', requireAuth, (req, res) => {
 });
 
 /**
+ * Turno cargado por el dueño: el que llamó por teléfono o cayó sin turno.
+ *
+ * Acepta un cliente existente (usuario_id) o uno nuevo (nombre + teléfono). El
+ * cliente nuevo queda registrado sin contraseña utilizable: suma puntos igual, y
+ * si más adelante se crea la cuenta con ese email los ve reflejados.
+ */
+router.post('/manual', requireAuth, requireDueño, (req, res) => {
+  const { usuario_id, nombre, telefono, servicio_id, fecha, hora, metodo_pago } = req.body || {};
+  if (!servicio_id || !fecha || !hora) {
+    return res.status(400).json({ error: 'servicio_id, fecha y hora son obligatorios' });
+  }
+
+  const servicio = db.prepare('SELECT * FROM servicios WHERE id = ? AND activo = 1').get(servicio_id);
+  if (!servicio) return res.status(404).json({ error: 'Servicio no encontrado' });
+
+  let clienteId = usuario_id;
+  if (!clienteId) {
+    if (!nombre || String(nombre).trim().length < 2) {
+      return res.status(400).json({ error: 'Elegí un cliente o escribí el nombre del nuevo' });
+    }
+    // Email interno: el cliente todavía no tiene cuenta, pero el turno y sus
+    // puntos quedan asociados a alguien
+    const bcrypt = require('bcryptjs');
+    const marca = `mostrador-${Date.now()}@barberia93cuartos.local`;
+    const info = db
+      .prepare('INSERT INTO usuarios (nombre, email, password_hash, telefono) VALUES (?, ?, ?, ?)')
+      .run(String(nombre).trim(), marca, bcrypt.hashSync(require('crypto').randomUUID(), 8), telefono || null);
+    clienteId = info.lastInsertRowid;
+  }
+
+  const bloqueado = db
+    .prepare('SELECT id FROM bloqueos WHERE fecha = ? AND (hora = ? OR hora IS NULL)')
+    .get(fecha, hora);
+  if (bloqueado) return res.status(409).json({ error: 'Ese horario está bloqueado' });
+
+  try {
+    const info = db
+      .prepare(
+        `INSERT INTO turnos (usuario_id, servicio_id, fecha, hora, metodo_pago, estado)
+         VALUES (?, ?, ?, ?, ?, 'confirmado')`,
+      )
+      .run(clienteId, servicio_id, fecha, hora, metodo_pago || 'efectivo');
+    return res.status(201).json(db.prepare('SELECT * FROM turnos WHERE id = ?').get(info.lastInsertRowid));
+  } catch (err) {
+    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      return res.status(409).json({ error: 'Ese horario ya está tomado' });
+    }
+    throw err;
+  }
+});
+
+/**
  * Un horario que se libera le sirve a quien todavía no tiene turno: se les avisa
  * a esos clientes, salvo a los excluidos (el que acaba de cancelar).
  */

@@ -26,6 +26,7 @@ function fotoDe(nombre = '') {
 export default function MisPuntos() {
   const [puntos, setPuntos] = useState(0);
   const [historial, setHistorial] = useState([]);
+  const [canjes, setCanjes] = useState([]);
   const [productos, setProductos] = useState([]);
   const [mensaje, setMensaje] = useState(null); // { texto, exito }
   const [canjeando, setCanjeando] = useState(null);
@@ -37,6 +38,7 @@ export default function MisPuntos() {
     api.get('/puntos/mis-puntos').then(({ data }) => {
       setPuntos(data.puntos);
       setHistorial(data.historial);
+      setCanjes(data.canjes ?? []);
     });
     api.get('/puntos/productos').then(({ data }) => setProductos(data));
   };
@@ -144,9 +146,30 @@ export default function MisPuntos() {
           </>
         )}
 
+        {canjes.length > 0 && (
+          <>
+            <h2 className="rotulo mt-9 mb-2">Lo que canjeaste</h2>
+            <div className="flex flex-col">
+              {canjes.map((c, i) => (
+                <div
+                  key={`${c.fecha}-${i}`}
+                  className="flex justify-between items-center text-[13px] border-b border-borde py-3"
+                >
+                  <span className="flex items-center gap-2 text-crema/80">
+                    <Icono nombre="regalo" size={14} className="text-dorado/60" />
+                    {c.producto}
+                    <span className="text-crema/40">· {c.fecha?.slice(0, 10)}</span>
+                  </span>
+                  <span className="text-crema/50 font-semibold">−{c.puntos_usados}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
         {historial.length > 0 && (
           <>
-            <h2 className="rotulo mt-9 mb-2">Historial</h2>
+            <h2 className="rotulo mt-9 mb-2">Puntos que sumaste</h2>
             <div ref={refHistorial} className="revelable flex flex-col">
               {historial.map((h, i) => (
                 <div

@@ -4,8 +4,16 @@ const { requireAuth, requireDueño } = require('../middleware/auth');
 
 const router = express.Router();
 
+/*
+ * Por defecto sólo los activos, que es lo que ve el cliente al reservar.
+ * Con ?todos=1 vienen también los dados de baja, para que el dueño pueda
+ * reactivarlos: si no, desactivar uno lo hacía desaparecer para siempre.
+ */
 router.get('/', (req, res) => {
-  const servicios = db.prepare('SELECT * FROM servicios WHERE activo = 1 ORDER BY precio').all();
+  const todos = req.query.todos === '1';
+  const servicios = db
+    .prepare(`SELECT * FROM servicios ${todos ? '' : 'WHERE activo = 1'} ORDER BY activo DESC, precio`)
+    .all();
   res.json(servicios);
 });
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../api/client';
-import AdminNav from '../components/AdminNav';
+import PanelPagina from '../components/PanelPagina';
 import Icono from '../components/Icono';
 import Contador from '../components/Contador';
 import { Esqueleto, Vacio } from '../components/Cargando';
@@ -51,14 +51,7 @@ export default function Ingresos() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto pb-16">
-      <AdminNav />
-      <div className="px-5 pt-6">
-        <h1 className="font-display text-[22px] mb-1 flex items-center gap-2 animate-aparecer">
-          <Icono nombre="ingresos" size={22} className="text-dorado" />
-          Control de ingresos
-        </h1>
-        <div className="filete mb-5" />
+    <PanelPagina icono="ingresos" titulo="Control de ingresos" descripcion="Lo que entra por turnos y lo que cargues a mano.">
 
         {resumen && (
           <div className="grid sm:grid-cols-3 gap-3 mb-6 cascada">
@@ -162,7 +155,6 @@ export default function Ingresos() {
             })}
           </div>
         )}
-      </div>
-    </div>
+    </PanelPagina>
   );
 }
