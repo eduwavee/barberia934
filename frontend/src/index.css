@@ -168,6 +168,67 @@
   }
 }
 
+/*
+ * Leaflet viene con controles claros: acá se los lleva a la paleta de la app.
+ * Va fuera de @layer para poder pisar los estilos propios de leaflet.css.
+ */
+.leaflet-container {
+  background: #14120F;
+  font-family: inherit;
+}
+/*
+ * Los tiles de OpenStreetMap son claros: se invierten y se enfrían para que el
+ * mapa quede oscuro como el resto de la app. El filtro va sobre el panel de
+ * tiles nada más, así el pin y los controles conservan su color.
+ */
+.leaflet-tile-pane {
+  filter: grayscale(1) invert(1) brightness(0.72) contrast(1.15) sepia(0.32);
+}
+.leaflet-control-zoom a {
+  background: rgba(10, 10, 10, 0.85);
+  color: #C9AE8C;
+  border-color: rgba(201, 174, 140, 0.3);
+  transition: background 0.2s ease;
+}
+.leaflet-control-zoom a:hover {
+  background: rgba(201, 174, 140, 0.18);
+  color: #E2D3BC;
+}
+.leaflet-control-attribution {
+  background: rgba(10, 10, 10, 0.72) !important;
+  color: rgba(237, 231, 220, 0.5);
+  font-size: 9px;
+}
+.leaflet-control-attribution a {
+  color: rgba(201, 174, 140, 0.8);
+}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: #141414;
+  color: #EDE7DC;
+  border: 1px solid rgba(201, 174, 140, 0.3);
+}
+.leaflet-popup-content {
+  margin: 10px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.leaflet-popup-close-button {
+  color: rgba(237, 231, 220, 0.6) !important;
+}
+/*
+ * El pin entra con un pequeño rebote. La animación va sobre el <svg> de adentro
+ * y NO sobre el marcador: Leaflet posiciona el marcador con `transform`, así que
+ * animar esa propiedad en la raíz lo manda a la esquina.
+ */
+.pin-barberia {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8));
+}
+.pin-barberia svg {
+  transform-origin: 50% 100%;
+  animation: aparecerEscala 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
 /* Accesibilidad: si el sistema pide menos movimiento, se apaga todo */
 @media (prefers-reduced-motion: reduce) {
   *,
