@@ -20,7 +20,7 @@ export default function MedallonPuntos({ puntos = 0 }) {
           <radialGradient id="disco" gradientUnits="userSpaceOnUse" cx="100" cy="100" r="99">
             <stop offset="0%" stopColor="#1B1610" />
             <stop offset="55%" stopColor="#2E241A" />
-            <stop offset="78%" stopColor="#5C462E" />
+            <stop offset="78%" stopColor="#453422" />
             <stop offset="100%" stopColor="#0E0C09" />
           </radialGradient>
         </defs>
