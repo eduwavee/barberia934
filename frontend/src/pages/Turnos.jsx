@@ -5,6 +5,8 @@ import BottomNav from '../components/BottomNav';
 import Encabezado from '../components/Encabezado';
 import Icono from '../components/Icono';
 import { Spinner, Vacio } from '../components/Cargando';
+import BotonOnda from '../components/BotonOnda';
+import Pantalla from '../components/Pantalla';
 
 const DIAS_CORTOS = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
 const DIAS_LARGOS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -96,12 +98,12 @@ export default function Turnos() {
   };
 
   return (
-    <div className="max-w-md mx-auto pb-28">
+    <Pantalla className="max-w-md mx-auto pb-28">
       <Encabezado titulo="Sacar turno" volverA="/" />
 
       <div className="px-5 pt-5">
         {/* Servicio */}
-        <p className="rotulo mb-2.5">Servicio</p>
+        <p className="rotulo-tenue mb-2.5">Servicio</p>
         <div className="flex gap-2 overflow-x-auto carrusel pb-1 mb-6 -mx-5 px-5 cascada">
           {servicios.map((s) => {
             const activo = servicioId === s.id;
@@ -110,12 +112,9 @@ export default function Turnos() {
                 key={s.id}
                 onClick={() => setServicioId(s.id)}
                 aria-pressed={activo}
-                className={`min-w-[126px] shrink-0 text-left rounded-xl border px-3.5 py-3 presionable
-                            transition-all duration-300 ${
-                              activo
-                                ? 'bg-dorado text-negro border-dorado'
-                                : 'bg-panel border-borde text-crema hover:border-dorado/50'
-                            }`}
+                className={`chip min-w-[130px] shrink-0 text-left px-4 py-3 ${
+                  activo ? 'chip-activo shadow-[0_6px_18px_-8px_rgba(201,174,140,0.8)]' : 'text-crema'
+                }`}
               >
                 <p className="font-medium text-[13px] leading-tight">{s.nombre}</p>
                 <p className={`text-[13px] mt-1 ${activo ? 'text-negro/75' : 'text-dorado'}`}>
@@ -138,22 +137,22 @@ export default function Turnos() {
                 key={d.fecha}
                 onClick={() => setFecha(d.fecha)}
                 aria-pressed={activo}
-                className={`flex shrink-0 flex-col items-center justify-center min-w-[58px] h-[62px]
-                            rounded-xl border presionable transition-all duration-300 ${
+                className={`chip flex shrink-0 flex-col items-center justify-center gap-0.5
+                            min-w-[62px] h-[70px] ${
                               activo
-                                ? 'bg-dorado text-negro border-dorado scale-105'
-                                : 'bg-panel border-borde text-crema/70 hover:border-dorado/50'
+                                ? 'chip-activo scale-105 shadow-[0_6px_20px_-8px_rgba(201,174,140,0.85)]'
+                                : 'text-crema/75'
                             }`}
               >
-                <span className="text-[10px] tracking-wider">{d.nombreDia}</span>
-                <span className="font-semibold text-lg leading-tight">{d.numero}</span>
+                <span className="text-[10px] font-medium tracking-[0.1em]">{d.nombreDia}</span>
+                <span className="font-bold text-[21px] leading-none">{d.numero}</span>
               </button>
             );
           })}
         </div>
 
         {/* Horarios */}
-        <h2 className="font-semibold mb-3">Horarios disponibles</h2>
+        <h2 className="text-[17px] font-bold mb-3.5">Horarios disponibles</h2>
 
         {cargandoHorarios ? (
           <div className="grid grid-cols-3 gap-2.5 mb-6" aria-hidden="true">
@@ -174,10 +173,10 @@ export default function Turnos() {
                   key={h}
                   onClick={() => setHora(h)}
                   aria-pressed={activo}
-                  className={`h-12 rounded-xl border text-sm presionable transition-all duration-300 ${
+                  className={`chip h-[52px] text-[15px] font-medium ${
                     activo
-                      ? 'bg-dorado text-negro border-dorado font-semibold'
-                      : 'bg-panel border-borde text-crema hover:border-dorado/50'
+                      ? 'chip-activo font-bold shadow-[0_6px_20px_-8px_rgba(201,174,140,0.85)]'
+                      : 'text-crema'
                   }`}
                 >
                   {h}
@@ -189,7 +188,7 @@ export default function Turnos() {
 
         {/* Resumen del turno */}
         {hora && (
-          <div className="card mb-4 animate-aparecer">
+          <div className="card mb-4 p-5 animate-subir-panel">
             <div className="flex items-start gap-3">
               <Icono nombre="calendario" size={20} className="text-dorado mt-0.5 shrink-0" />
               <div>
@@ -249,10 +248,10 @@ export default function Turnos() {
               </p>
             )}
 
-            <button
+            <BotonOnda
               disabled={confirmando}
               onClick={confirmarTurno}
-              className="btn-dorado w-full mt-5 flex items-center justify-center gap-2"
+              className="btn-dorado w-full mt-6 flex items-center justify-center gap-2"
             >
               {confirmando ? (
                 <>
@@ -261,7 +260,7 @@ export default function Turnos() {
               ) : (
                 'CONFIRMAR TURNO'
               )}
-            </button>
+            </BotonOnda>
           </div>
         )}
 
@@ -274,6 +273,6 @@ export default function Turnos() {
       </div>
 
       <BottomNav />
-    </div>
+    </Pantalla>
   );
 }

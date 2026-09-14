@@ -13,10 +13,10 @@
 }
 
 @layer components {
-  /* Botón arena macizo: el primario de toda la app */
+  /* Botón primario: píldora arena, como todos los de la referencia */
   .btn-dorado {
-    @apply relative overflow-hidden bg-dorado text-negro font-semibold tracking-wide py-3.5 px-4
-           rounded-lg text-center transition-all duration-200 active:scale-[0.97]
+    @apply relative overflow-hidden bg-dorado text-negro font-bold tracking-[0.06em] py-4 px-5
+           rounded-full text-center transition-all duration-200 active:scale-[0.97]
            hover:bg-dorado-claro disabled:hover:bg-dorado disabled:active:scale-100;
   }
   .btn-dorado::after {
@@ -32,19 +32,35 @@
   }
 
   .btn-outline {
-    @apply border border-dorado/70 text-crema font-semibold tracking-wide py-3.5 px-4 rounded-lg
+    @apply border border-dorado/60 text-crema font-bold tracking-[0.06em] py-4 px-5 rounded-full
            text-center transition-all duration-200 active:scale-[0.97]
            hover:bg-dorado/10 hover:border-dorado;
   }
 
-  /* Tarjeta oscura estándar */
+  /* Tarjeta oscura estándar, con el hairline cálido de la referencia */
   .card {
-    @apply bg-panel border border-borde rounded-2xl p-4 transition-all duration-300;
+    @apply bg-panel border border-dorado/20 rounded-2xl p-4 transition-all duration-300;
+  }
+
+  /* Superficie pulsable con contorno arena: chips de día, horarios, accesos */
+  .chip {
+    @apply bg-panel border border-dorado/25 rounded-2xl transition-all duration-300
+           hover:border-dorado/60 active:scale-[0.96];
+  }
+  .chip-activo {
+    @apply bg-dorado text-negro border-dorado;
   }
 
   /* Tarjeta clara (próximos turnos, medios de pago) */
   .card-papel {
-    @apply bg-papel text-negro rounded-2xl p-5 shadow-tarjeta transition-all duration-300;
+    @apply bg-papel text-negro rounded-3xl p-6 shadow-tarjeta transition-all duration-300;
+  }
+
+  /* Botón arena dentro de una tarjeta clara */
+  .btn-en-papel {
+    @apply block w-full rounded-full bg-dorado py-3.5 text-sm font-bold tracking-[0.08em]
+           text-negro transition-all duration-200 hover:bg-dorado-oscuro hover:text-crema
+           active:scale-[0.97];
   }
 
   .input-dorado {
@@ -58,9 +74,12 @@
     @apply h-px w-full bg-gradient-to-r from-transparent via-dorado/50 to-transparent;
   }
 
-  /* Rótulo en versalitas, como los títulos de sección de la referencia */
+  /* Título de sección en versalitas, como en la referencia */
   .rotulo {
-    @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-crema/70;
+    @apply text-[13px] font-bold uppercase tracking-[0.13em] text-crema;
+  }
+  .rotulo-tenue {
+    @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-crema/55;
   }
 
   .esqueleto {
@@ -70,13 +89,25 @@
     animation: brillo 1.6s linear infinite;
   }
 
-  /* Poste de barbero: franjas diagonales que enmarcan la tarjeta del QR */
+  /* Separador con la tijera de la marca al medio */
+  .filete-tijera {
+    @apply flex items-center gap-3 text-dorado/70;
+  }
+  .filete-tijera::before,
+  .filete-tijera::after {
+    content: '';
+    @apply h-px flex-1 bg-gradient-to-r from-transparent via-dorado/45 to-transparent;
+  }
+
+  /* Poste de barbero de la tarjeta del QR */
   .poste-barbero {
     background-image: repeating-linear-gradient(
-      -45deg,
-      #C9AE8C 0 6px,
-      #0A0A0A 6px 12px
+      -50deg,
+      #C9AE8C 0 9px,
+      #8E7454 9px 11px,
+      #0A0A0A 11px 22px
     );
+    @apply rounded-full;
   }
 }
 
@@ -94,6 +125,34 @@
   .cascada > *:nth-child(7) { animation-delay: 0.21s; }
   .cascada > *:nth-child(8) { animation-delay: 0.24s; }
   .cascada > *:nth-child(n + 9) { animation-delay: 0.27s; }
+
+  /*
+   * Revelado al entrar en pantalla (lo activa el hook useRevelar).
+   * El estado final se declara con propiedades, no con una animación: en una
+   * pestaña en segundo plano las animaciones no corren y el bloque quedaría
+   * invisible para siempre. Con transición, el movimiento es decorativo y el
+   * contenido siempre termina visible.
+   */
+  .revelable {
+    opacity: 0;
+    transform: translateY(22px);
+    transition:
+      opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .revelable.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Onda al tocar un botón primario */
+  .onda-toque {
+    position: absolute;
+    border-radius: 9999px;
+    background: rgba(10, 10, 10, 0.45);
+    pointer-events: none;
+    animation: onda 0.6s ease-out forwards;
+  }
 
   .presionable {
     @apply transition-transform duration-150 active:scale-[0.96];

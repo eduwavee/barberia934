@@ -5,6 +5,7 @@ import BottomNav from '../components/BottomNav';
 import Encabezado from '../components/Encabezado';
 import Icono from '../components/Icono';
 import { Esqueleto } from '../components/Cargando';
+import Pantalla from '../components/Pantalla';
 
 const estilosEstado = {
   pendiente: { texto: 'text-dorado', fondo: 'border-dorado/40 text-dorado', icono: 'reloj' },
@@ -39,7 +40,7 @@ export default function MisTurnos() {
   };
 
   return (
-    <div className="max-w-md mx-auto pb-28">
+    <Pantalla className="max-w-md mx-auto pb-28">
       <Encabezado titulo="Mis turnos" volverA="/" />
 
       <div className="px-5 pt-5">
@@ -47,14 +48,9 @@ export default function MisTurnos() {
           <Esqueleto lineas={3} />
         ) : turnos.length === 0 ? (
           <div className="card-papel text-center animate-aparecer">
-            <p className="font-semibold">No tenés turnos próximos</p>
-            <p className="text-negro/60 text-sm mt-1">¡Sacá tu turno y asegurá tu horario!</p>
-            <Link
-              to="/turnos"
-              className="mt-4 block w-full rounded-lg bg-dorado py-3 text-sm font-semibold tracking-wide
-                         text-negro transition-all duration-200 hover:bg-dorado-oscuro hover:text-crema
-                         active:scale-[0.98]"
-            >
+            <p className="font-bold text-[15px]">No tenés turnos próximos</p>
+            <p className="text-negro/65 text-sm mt-1.5">¡Sacá tu turno y asegurá tu horario!</p>
+            <Link to="/turnos" className="btn-en-papel mt-5">
               SACAR TURNO
             </Link>
           </div>
@@ -110,6 +106,6 @@ export default function MisTurnos() {
       </div>
 
       <BottomNav />
-    </div>
+    </Pantalla>
   );
 }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Icono from '../components/Icono';
 import { Spinner } from '../components/Cargando';
+import BotonOnda from '../components/BotonOnda';
 import logo from '../assets/logo.jpeg';
 import fondoLocal from '../assets/barberia-local.jpg';
 
@@ -56,34 +57,34 @@ export default function Login({ vistaInicial = 'portada' }) {
         <img
           src={logo}
           alt="Barbería 9 ¾"
-          className="w-[150px] h-[150px] rounded-full object-cover shadow-sello animate-sello"
+          className="w-[168px] h-[168px] rounded-full object-cover shadow-sello animate-sello"
         />
 
-        <div className="mt-7 text-center animate-aparecer">
-          <p className="font-display text-[26px] tracking-[0.12em] leading-none">BARBERÍA</p>
-          <div className="flex items-center justify-center gap-3 my-2.5">
-            <span className="h-px w-9 bg-dorado/70" />
-            <span className="font-display text-[34px] leading-none">9 ¾</span>
-            <span className="h-px w-9 bg-dorado/70" />
+        <div className="mt-8 text-center animate-aparecer">
+          <p className="font-display text-[30px] tracking-[0.16em] leading-none">BARBERÍA</p>
+          <div className="flex items-center justify-center gap-4 mt-3">
+            <span className="h-[1.5px] w-5 bg-crema/80" />
+            <span className="font-display text-[36px] leading-none">9 ¾</span>
+            <span className="h-[1.5px] w-5 bg-crema/80" />
           </div>
-          <p className="text-[10px] tracking-[0.34em] text-crema/55 mt-3">
-            CORTE · ESTILO · ACTITUD
+          <p className="text-[10px] tracking-[0.3em] text-crema/70 mt-4">
+            CORTE <span className="text-dorado">•</span> ESTILO <span className="text-dorado">•</span> ACTITUD
           </p>
         </div>
 
         <div className="flex-1" />
 
         {vista === 'portada' ? (
-          <div className="w-full flex flex-col gap-3 animate-aparecer">
-            <button onClick={() => setVista('ingresar')} className="btn-dorado">
+          <div className="w-full flex flex-col gap-3.5 animate-subir-panel">
+            <BotonOnda onClick={() => setVista('ingresar')} className="btn-dorado">
               INICIAR SESIÓN
-            </button>
+            </BotonOnda>
             <button onClick={() => setVista('registrar')} className="btn-outline">
               REGISTRARSE
             </button>
           </div>
         ) : (
-          <form onSubmit={onSubmit} className="w-full animate-aparecer">
+          <form onSubmit={onSubmit} className="w-full animate-subir-panel">
             <div className="flex items-center gap-2 mb-4">
               <button
                 type="button"

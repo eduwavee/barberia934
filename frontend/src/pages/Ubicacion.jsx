@@ -1,7 +1,9 @@
 import { useAuth } from '../context/AuthContext';
 import BottomNav from '../components/BottomNav';
 import Encabezado from '../components/Encabezado';
+import Pantalla from '../components/Pantalla';
 import Icono from '../components/Icono';
+import useRevelar from '../hooks/useRevelar';
 import mapa from '../assets/mapa.jpg';
 import qr from '../assets/qr.png';
 
@@ -14,83 +16,84 @@ const LOCAL = {
 
 export default function Ubicacion() {
   const { usuario, logout } = useAuth();
+  const refQR = useRevelar();
+  const refContacto = useRevelar();
 
   return (
-    <div className="max-w-md mx-auto pb-28">
+    <Pantalla className="max-w-md mx-auto pb-28">
       <Encabezado titulo="Ubicación" volverA="/" />
 
       <div className="px-5 pt-5">
-        {/* Mapa */}
-        <div className="relative h-44 rounded-2xl overflow-hidden border border-borde animate-aparecer-escala">
-          <img src={mapa} alt="Mapa del local" className="h-full w-full object-cover" />
-          <span
-            className="absolute left-1/2 -translate-x-1/2 bottom-3 flex items-center gap-1.5 rounded-full
-                       bg-negro/75 backdrop-blur px-3 py-1.5 text-[11px] text-crema/90"
+        {/* Mapa, dirección y acceso a Maps van juntos en una sola tarjeta */}
+        <div className="card p-3 animate-aparecer-escala">
+          <div className="relative h-44 rounded-xl overflow-hidden">
+            <img
+              src={mapa}
+              alt="Mapa del local"
+              className="h-full w-full object-cover animate-deriva"
+            />
+            <span className="absolute left-1/2 top-[60%] -translate-x-1/2 text-[12px] text-crema drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+              Barbería 9 ¾
+            </span>
+          </div>
+
+          <a
+            href={LOCAL.maps}
+            target="_blank"
+            rel="noreferrer"
+            className="group flex items-center gap-3 px-2 py-4"
           >
-            <Icono nombre="ubicacion" size={13} className="text-dorado" />
-            Barbería 9 ¾
-          </span>
+            <Icono nombre="ubicacion" size={21} className="text-dorado shrink-0" />
+            <div className="flex-1">
+              <p className="text-[15px] font-medium">{LOCAL.calle}</p>
+              <p className="text-crema/55 text-[13px] mt-0.5">{LOCAL.ciudad}</p>
+            </div>
+            <Icono
+              nombre="flecha"
+              size={17}
+              className="text-crema/35 transition-transform duration-300 group-hover:translate-x-1"
+            />
+          </a>
+
+          <a href={LOCAL.maps} target="_blank" rel="noreferrer" className="btn-dorado block w-full">
+            ABRIR EN GOOGLE MAPS
+          </a>
         </div>
 
-        {/* Dirección */}
-        <a
-          href={LOCAL.maps}
-          target="_blank"
-          rel="noreferrer"
-          className="card group flex items-center gap-3 mt-3 hover:border-dorado/50"
+        {/* QR, enmarcado con los postes de barbero */}
+        <div
+          ref={refQR}
+          className="revelable card relative mt-4 overflow-hidden px-10 py-6 text-center"
         >
-          <Icono nombre="ubicacion" size={20} className="text-dorado shrink-0" />
-          <div className="flex-1">
-            <p className="text-sm font-medium">{LOCAL.calle}</p>
-            <p className="text-crema/50 text-xs mt-0.5">{LOCAL.ciudad}</p>
+          <span className="poste-barbero absolute left-3 top-6 bottom-6 w-[22px]" />
+          <span className="poste-barbero absolute right-3 top-6 bottom-6 w-[22px]" />
+
+          <div className="filete-tijera mb-4">
+            <Icono nombre="tijera" size={19} />
           </div>
-          <Icono
-            nombre="flecha"
-            size={16}
-            className="text-crema/35 transition-transform duration-300 group-hover:translate-x-1"
-          />
-        </a>
 
-        <a
-          href={LOCAL.maps}
-          target="_blank"
-          rel="noreferrer"
-          className="btn-dorado block w-full mt-3"
-        >
-          ABRIR EN GOOGLE MAPS
-        </a>
+          <p className="text-[19px] font-bold">Escaneá el QR</p>
+          <p className="text-crema/55 text-[13px] mt-1">y accedé a la app</p>
 
-        {/* QR, enmarcado con el poste de barbero */}
-        <div className="relative mt-4 rounded-2xl overflow-hidden border border-borde bg-panel animate-aparecer">
-          <span className="poste-barbero absolute left-0 top-0 bottom-0 w-3 opacity-70" />
-          <span className="poste-barbero absolute right-0 top-0 bottom-0 w-3 opacity-70" />
-
-          <div className="px-9 py-6 text-center">
-            <p className="font-semibold flex items-center justify-center gap-2">
-              <Icono nombre="tijera" size={17} className="text-dorado" />
-              Escaneá el QR
-            </p>
-            <p className="text-crema/50 text-xs mt-1">y accedé a la app</p>
-
-            <div className="mt-4 mx-auto w-[150px] rounded-lg bg-white p-2.5">
-              <img src={qr} alt="Código QR de Barbería 9 ¾" className="w-full" />
-            </div>
-
-            <p className="mt-4 inline-flex items-center gap-2 rounded-lg bg-dorado/15 border border-dorado/30
-                          px-3 py-2 text-[11px] text-crema/75">
-              <Icono nombre="telefono" size={14} className="text-dorado" />
-              También podés escanearlo desde el local
-            </p>
+          <div className="mt-5 mx-auto w-[168px] rounded-2xl bg-white p-3 shadow-tarjeta transition-transform duration-500 hover:scale-105">
+            <img src={qr} alt="Código QR de Barbería 9 ¾" className="w-full" />
           </div>
+
+          <p className="mt-5 inline-flex items-center gap-2.5 rounded-full bg-dorado px-4 py-2.5 text-[12px] font-medium leading-tight text-negro">
+            <Icono nombre="telefono" size={15} className="shrink-0" />
+            También podés escanearlo
+            <br />
+            desde el local
+          </p>
         </div>
 
         {/* Contacto */}
-        <div className="flex flex-col gap-2 mt-4 cascada">
+        <div ref={refContacto} className="revelable flex flex-col gap-2 mt-4">
           <a
             href={LOCAL.instagram}
             target="_blank"
             rel="noreferrer"
-            className="group flex items-center gap-3 rounded-xl border border-borde bg-panel px-4 py-3
+            className="group flex items-center gap-3 rounded-2xl border border-dorado/20 bg-panel px-4 py-3.5
                        text-sm transition-all duration-300 hover:border-dorado/50"
           >
             <Icono nombre="instagram" size={19} className="text-dorado" />
@@ -105,7 +108,7 @@ export default function Ubicacion() {
             href="https://wa.me/"
             target="_blank"
             rel="noreferrer"
-            className="group flex items-center gap-3 rounded-xl border border-borde bg-panel px-4 py-3
+            className="group flex items-center gap-3 rounded-2xl border border-dorado/20 bg-panel px-4 py-3.5
                        text-sm transition-all duration-300 hover:border-dorado/50"
           >
             <Icono nombre="whatsapp" size={19} className="text-dorado" />
@@ -119,7 +122,7 @@ export default function Ubicacion() {
         </div>
 
         {/* Firma de marca del pie de la referencia */}
-        <p className="font-display italic text-center text-dorado/70 text-sm mt-7 leading-relaxed">
+        <p className="font-display italic text-center text-dorado/70 text-[15px] mt-8 leading-relaxed">
           Más que un corte,
           <br />
           es un estilo de vida
@@ -128,7 +131,7 @@ export default function Ubicacion() {
         {usuario && (
           <button
             onClick={logout}
-            className="group btn-outline w-full mt-6 inline-flex items-center justify-center gap-2"
+            className="group btn-outline w-full mt-7 inline-flex items-center justify-center gap-2"
           >
             <Icono
               nombre="salir"
@@ -141,6 +144,6 @@ export default function Ubicacion() {
       </div>
 
       <BottomNav />
-    </div>
+    </Pantalla>
   );
 }

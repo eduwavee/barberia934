@@ -97,15 +97,24 @@ colores están muestreados de ahí y las imágenes recortadas de la hoja de asse
   `grosor`, `relleno` (macizo, se lee mejor por debajo de 16px) y `titulo`
   (lo vuelve accesible; sin él queda `aria-hidden`).
 - **Animaciones**: tokens en `tailwind.config.js` (`animate-aparecer`,
-  `animate-aparecer-escala`, `animate-sello`, `animate-destello`,
-  `animate-latido`, `animate-flotar`, `animate-girar`, `animate-temblor`,
-  `animate-tijeretazo`, `animate-acercar-foto`) más utilidades en
-  `src/index.css`: `cascada` (entrada escalonada), `presionable`, `esqueleto`,
-  `filete`, `rotulo`, `carrusel` y `poste-barbero`. Todo se apaga solo si el
-  sistema pide `prefers-reduced-motion: reduce`.
-- **Componentes de chrome**: `Encabezado` (flecha de volver + título centrado),
-  `BottomNav`, `MedallonPuntos` (el sello con el saldo y el texto curvado),
+  `animate-aparecer-escala`, `animate-entrar-pantalla`, `animate-subir-panel`,
+  `animate-sello`, `animate-destello`, `animate-latido`, `animate-flotar`,
+  `animate-rebote`, `animate-girar`, `animate-temblor`, `animate-tijeretazo`,
+  `animate-deriva`, `animate-acercar-foto`) más utilidades en `src/index.css`:
+  `cascada` (entrada escalonada), `revelable` (revelado al hacer scroll),
+  `presionable`, `onda-toque`, `esqueleto`, `filete`, `filete-tijera`, `rotulo`,
+  `chip`, `carrusel` y `poste-barbero`.
+  Todo se apaga solo si el sistema pide `prefers-reduced-motion: reduce`.
+- **Componentes de chrome**: `Pantalla` (transición al cambiar de ruta),
+  `Encabezado` (flecha de volver + título centrado), `BottomNav`,
+  `MedallonPuntos` (el sello con el saldo), `BotonOnda` (onda al tocar),
   `Contador` (números que suben) y `Spinner` / `Esqueleto` / `Vacio`.
+- **`useRevelar`** (`src/hooks/useRevelar.js`): revela un bloque cuando entra en
+  pantalla. Es un *callback ref*, así que también sirve en bloques que se montan
+  después de cargar datos. El estado final se declara con propiedades y no con
+  una animación —en una pestaña en segundo plano las animaciones no corren— y
+  tiene respaldo por scroll y un temporizador, para que el contenido nunca pueda
+  quedar invisible.
 
 El login es una portada con la foto del local y los dos accesos: el formulario
 se despliega sobre la misma pantalla (`/registro` abre directo el de registro).

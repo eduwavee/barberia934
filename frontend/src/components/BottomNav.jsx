@@ -32,11 +32,19 @@ export default function BottomNav() {
                   }`}
                 />
                 <Icono
+                  /* el activo se dibuja más grueso y rebota al entrar,
+                     para que pese como en la referencia */
+                  key={isActive ? 'on' : 'off'}
                   nombre={item.icono}
                   size={21}
-                  className={`transition-transform duration-300 ${isActive ? 'scale-110' : ''}`}
+                  grosor={isActive ? 2.1 : 1.5}
+                  className={
+                    isActive
+                      ? 'animate-rebote drop-shadow-[0_0_10px_rgba(201,174,140,0.45)]'
+                      : 'transition-transform duration-300'
+                  }
                 />
-                {item.label}
+                <span className={isActive ? 'font-semibold' : undefined}>{item.label}</span>
               </>
             )}
           </NavLink>

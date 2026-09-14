@@ -5,6 +5,8 @@ import Encabezado from '../components/Encabezado';
 import Icono from '../components/Icono';
 import MedallonPuntos from '../components/MedallonPuntos';
 import { Vacio } from '../components/Cargando';
+import Pantalla from '../components/Pantalla';
+import useRevelar from '../hooks/useRevelar';
 import imgCera from '../assets/producto-cera.png';
 import imgPolvo from '../assets/producto-polvo.png';
 import imgAceite from '../assets/producto-aceite.png';
@@ -28,6 +30,8 @@ export default function MisPuntos() {
   const [mensaje, setMensaje] = useState(null); // { texto, exito }
   const [canjeando, setCanjeando] = useState(null);
   const [verTodos, setVerTodos] = useState(false);
+  const refProductos = useRevelar();
+  const refHistorial = useRevelar();
 
   const cargar = () => {
     api.get('/puntos/mis-puntos').then(({ data }) => {
@@ -58,15 +62,15 @@ export default function MisPuntos() {
   const visibles = verTodos ? productos : productos.slice(0, 3);
 
   return (
-    <div className="max-w-md mx-auto pb-28">
+    <Pantalla className="max-w-md mx-auto pb-28">
       <Encabezado titulo="Mis puntos" volverA="/" />
 
       <div className="px-5 pt-6">
         <MedallonPuntos puntos={puntos} />
 
-        <div className="text-center mt-6 animate-aparecer">
-          <p className="font-semibold text-[17px]">¡Sumá puntos con cada turno!</p>
-          <p className="text-crema/50 text-[13px] leading-relaxed mt-2 px-2">
+        <div className="text-center mt-7 animate-aparecer">
+          <p className="text-[19px] font-bold">¡Sumá puntos con cada turno!</p>
+          <p className="text-crema/55 text-[14px] leading-relaxed mt-2.5 px-3">
             Por cada turno que saques, sumás puntos. Podés canjearlos por productos en el local.
           </p>
         </div>
@@ -83,43 +87,42 @@ export default function MisPuntos() {
           </p>
         )}
 
-        <h2 className="rotulo mt-8 mb-3">Productos canjeables</h2>
+        <h2 className="rotulo mt-9 mb-3.5">Productos canjeables</h2>
 
         {productos.length === 0 ? (
           <Vacio icono="regalo">Todavía no hay productos para canjear.</Vacio>
         ) : (
           <>
-            <div className="grid grid-cols-3 gap-2.5 cascada">
+            <div ref={refProductos} className="revelable grid grid-cols-3 gap-2.5">
               {visibles.map((p) => {
                 const alcanza = puntos >= p.puntos_requeridos && p.stock > 0;
                 const foto = fotoDe(p.nombre);
                 return (
                   <div
                     key={p.id}
-                    className="flex flex-col rounded-xl border border-borde bg-panel overflow-hidden
-                               transition-all duration-300 hover:border-dorado/40"
+                    className="group flex flex-col rounded-2xl border border-dorado/25 bg-panel
+                               overflow-hidden transition-all duration-300 hover:border-dorado/60
+                               hover:-translate-y-0.5"
                   >
                     <div className="h-[88px] flex items-center justify-center bg-gradient-to-b from-white/[0.04] to-transparent p-2">
                       {foto ? (
                         <img
                           src={foto}
                           alt={p.nombre}
-                          className="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105"
+                          className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
                         />
                       ) : (
                         <Icono nombre="regalo" size={32} className="text-dorado/45" />
                       )}
                     </div>
                     <div className="px-2 pb-2.5 pt-1 text-center">
-                      <p className="text-[11px] leading-tight text-crema/85 min-h-[26px]">{p.nombre}</p>
-                      <p className="text-dorado text-[13px] font-semibold mt-1">
-                        {p.puntos_requeridos} pts
-                      </p>
+                      <p className="text-[11px] leading-tight text-crema/70 min-h-[26px]">{p.nombre}</p>
+                      <p className="text-[14px] font-bold mt-1">{p.puntos_requeridos} pts</p>
                       <button
                         disabled={!alcanza || canjeando === p.id}
                         onClick={() => canjear(p)}
-                        className="mt-2 w-full rounded-md bg-dorado py-1.5 text-[10px] font-semibold
-                                   tracking-wider text-negro transition-all duration-200
+                        className="mt-2.5 w-full rounded-lg bg-dorado py-2 text-[10px] font-bold
+                                   tracking-[0.12em] text-negro transition-all duration-200
                                    hover:bg-dorado-claro active:scale-[0.96] disabled:opacity-25
                                    disabled:hover:bg-dorado"
                       >
@@ -131,21 +134,20 @@ export default function MisPuntos() {
               })}
             </div>
 
-            {productos.length > 3 && (
-              <button
-                onClick={() => setVerTodos((v) => !v)}
-                className="btn-outline w-full mt-4 text-[13px]"
-              >
-                {verTodos ? 'VER MENOS' : 'VER TODOS LOS PRODUCTOS'}
-              </button>
-            )}
+            <button
+              onClick={() => setVerTodos((v) => !v)}
+              disabled={productos.length <= 3}
+              className="btn-outline w-full mt-4 text-[13px] disabled:opacity-45 disabled:active:scale-100"
+            >
+              {verTodos ? 'VER MENOS' : 'VER TODOS LOS PRODUCTOS'}
+            </button>
           </>
         )}
 
         {historial.length > 0 && (
           <>
-            <h2 className="rotulo mt-8 mb-2">Historial</h2>
-            <div className="flex flex-col cascada">
+            <h2 className="rotulo mt-9 mb-2">Historial</h2>
+            <div ref={refHistorial} className="revelable flex flex-col">
               {historial.map((h, i) => (
                 <div
                   key={`${h.fecha}-${h.servicio}-${i}`}
@@ -165,6 +167,6 @@ export default function MisPuntos() {
       </div>
 
       <BottomNav />
-    </div>
+    </Pantalla>
   );
 }
