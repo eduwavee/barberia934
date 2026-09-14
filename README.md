@@ -128,7 +128,9 @@ colores están muestreados de ahí y las imágenes recortadas de la hoja de asse
   `animate-deriva`, `animate-acercar-foto`) más utilidades en `src/index.css`:
   `cascada` (entrada escalonada), `revelable` (revelado al hacer scroll),
   `presionable`, `onda-toque`, `esqueleto`, `filete`, `filete-tijera`, `rotulo`,
-  `chip`, `carrusel` y `poste-barbero`.
+  `chip`, `carrusel` y `poste-barbero` (el poste gira como el de verdad: las
+  franjas suben sin fin, con el salto vertical calculado para que el ciclo cierre
+  sin costura).
   Todo se apaga solo si el sistema pide `prefers-reduced-motion: reduce`.
 - **Componentes de chrome**: `Pantalla` (transición al cambiar de ruta),
   `Encabezado` (flecha de volver + título centrado), `BottomNav`,

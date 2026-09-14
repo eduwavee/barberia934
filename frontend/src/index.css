@@ -104,15 +104,41 @@
     @apply h-px flex-1 bg-gradient-to-r from-transparent via-dorado/45 to-transparent;
   }
 
-  /* Poste de barbero de la tarjeta del QR */
+  /*
+   * Poste de barbero de la tarjeta del QR. Gira como el de verdad: las franjas
+   * helicoidales suben sin fin (ver @keyframes girarPoste más abajo).
+   */
   .poste-barbero {
+    @apply relative overflow-hidden rounded-full;
     background-image: repeating-linear-gradient(
-      -50deg,
+      45deg,
       #C9AE8C 0 9px,
       #8E7454 9px 11px,
-      #0A0A0A 11px 22px
+      #0A0A0A 11px 20px,
+      #8E7454 20px 22px
     );
-    @apply rounded-full;
+    animation: girarPoste 2.6s linear infinite;
+  }
+
+  /*
+   * Vidrio del tubo: oscurece los bordes y deja un brillo corrido del centro,
+   * para que se lea como un cilindro y no como una cinta plana.
+   */
+  .poste-barbero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 0, 0, 0.1) 20%,
+      rgba(255, 255, 255, 0.24) 40%,
+      rgba(255, 255, 255, 0.04) 58%,
+      rgba(0, 0, 0, 0.22) 78%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
   }
 }
 
@@ -170,6 +196,24 @@
   }
   .carrusel::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/*
+ * El giro del poste de barbero.
+ *
+ * El salto vertical no es un número al azar: el patrón se repite cada 22px
+ * sobre el eje del degradado, y a 45° un desplazamiento vertical se proyecta
+ * sobre ese eje multiplicado por cos(45°). Así que el salto que cierra el ciclo
+ * es 22 / cos(45°) = 22 × √2 = 31.113px. Con ese valor exacto la vuelta no
+ * tiene costura; con cualquier otro se ve un tirón en cada ciclo.
+ */
+@keyframes girarPoste {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 -31.113px;
   }
 }
 
